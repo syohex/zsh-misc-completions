@@ -7,6 +7,7 @@
 - emacsclient
 - gtags
 - porg
+- peco
 
 ## Perl
 
