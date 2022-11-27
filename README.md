@@ -27,3 +27,18 @@
 - mediastreamvalidator
 - mediasubtitlesegmenter
 - screencapture
+
+## Setup example
+
+Add some directory to `fpath` variables. In the following example, add `~/.zsh/completions`.
+
+```zsh
+mkdir -p ~/.zsh/completions
+fpath=(~/.zsh/completions $fpath)
+```
+
+Run `example_setup.sh`
+
+```zsh
+./example_setup.sh ~/.zsh/completions
+```
