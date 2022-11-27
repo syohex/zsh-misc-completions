@@ -1,0 +1,61 @@
+#compdef plackup
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2022 Shohei YOSHIDA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+typeset -A opt_args
+local context state line
+
+local -a psgi_servers
+local psgi_server_dir
+psgi_server_dir=$(dirname $(perldoc -l Plack::Handler::Standalone))
+psgi_servers=($(find $psgi_server_dir -maxdepth 1 | perl -nle 'm{([^/]+)\.pm$} and print $1'))
+
+_arguments -C \
+  '(-a --app)'{-a,--app}'[locate a .psgi script]' \
+  '(-o --host)'{-o,--host}'[the interface a TCP based server daemon binds to]' \
+  '(-p --port)'{-p,--port}'[the port number a TCP based server daemon listens on]' \
+  '(-s --server)'{-s,--server}'[select a specific implementation to run on]: :'"($psgi_servers)" \
+  '(-S --socket)'{-S,--socket}'[UNIX domain socket path to listen on]' \
+  '(-l --listen)'{-l,--listen}'[addresses to listen on]' \
+  '(-D --daemonize)'{-D,--daemonize}'[makes the process go background]' \
+  '(--no-default-middleware)--no-default-middleware[prevents loading middleware stack]' \
+  '(-e)-e[evaluate the given code as a PSGI app]' \
+  '(-I)-I[specify perl library include path]' \
+  '*-M-[specify modules to load before loading the app code]:module:_perl_modules -S= -q' \
+  '(-E --env)'{-E,--env}'[specify the environment option]' \
+  '(-r --reload)'{-r,--reload}'[make plackup to watch updates from your development directory and restarts the server whenever a file is updated]' \
+  '(-R --Reload)'{-R,--Reload}'[allows you to specify the path to watch file updates separated by comma]' \
+  '(-L --Loader)'{-L,--Loader}'[specify the server loading subclass that implements how to run the server]' \
+  '(--access-log)--access-log[specify the pathname of a file where the access log should be written]' \
+  '(--path)--path[Speficy the root path of application to run]' \
+  '(- :)'{-h,--help}'[show help]' \
+  '(- :)--version[show version]' \
+  '(1 *): :_files' && return 0
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
