@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 set -e
-set -x
 
 local destination=$1
 if [[ -z "$destination" ]]; then
@@ -18,5 +17,7 @@ fi
 
 for file in $files
 do
-  ln -sf $PWD/$file ~/.zsh/completions
+  local base=$(basename $file)
+  echo "Create symbolic link $destination/$base"
+  ln -sf $PWD/$file "$destination/$base"
 done

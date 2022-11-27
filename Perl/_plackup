@@ -21,36 +21,39 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for plackup 1.0050 (https://github.com/plack/Plack)
+#
+# ------------------------------------------------------------------------------
 
-typeset -A opt_args
-local context state line
+local psgi_server_dir=$(dirname $(perldoc -l Plack::Handler::Standalone))
+local -a psgi_servers=(${(@f)"$(echo $psgi_server_dir/*.pm(.:t:r))"})
 
-local -a psgi_servers
-local psgi_server_dir
-psgi_server_dir=$(dirname $(perldoc -l Plack::Handler::Standalone))
-psgi_servers=($(find $psgi_server_dir -maxdepth 1 | perl -nle 'm{([^/]+)\.pm$} and print $1'))
-
-_arguments -C \
-  '(-a --app)'{-a,--app}'[locate a .psgi script]' \
-  '(-o --host)'{-o,--host}'[the interface a TCP based server daemon binds to]' \
-  '(-p --port)'{-p,--port}'[the port number a TCP based server daemon listens on]' \
-  '(-s --server)'{-s,--server}'[select a specific implementation to run on]: :'"($psgi_servers)" \
-  '(-S --socket)'{-S,--socket}'[UNIX domain socket path to listen on]' \
-  '(-l --listen)'{-l,--listen}'[addresses to listen on]' \
+_arguments \
+  '(-a --app)'{-a,--app}'[locate a .psgi script]: :_files -g "*.psgi"' \
+  '-e[evaluate the given code as a PSGI app]:code' \
+  '(-o --host)'{-o,--host}'[Binds to a TCP interface]:host' \
+  '(-p --port)'{-p,--port}'[Binds to TCP port. Defaults to 5000]:port' \
+  '(-s --server)'{-s,--server}'[Selects a specific server implementation to run on]: :'"($psgi_servers)" \
+  '(-S --socket)'{-S,--socket}'[Listens on a UNIX domain socket file]: :_files' \
+  \*{-l,--listen}'[Listens on one or more addresses whether "HOST:PORT", ":PORT" or path]: :_files' \
   '(-D --daemonize)'{-D,--daemonize}'[makes the process go background]' \
-  '(--no-default-middleware)--no-default-middleware[prevents loading middleware stack]' \
-  '(-e)-e[evaluate the given code as a PSGI app]' \
-  '(-I)-I[specify perl library include path]' \
+  '*-I[Specifies Perl library include paths]: :_files -/' \
   '*-M-[specify modules to load before loading the app code]:module:_perl_modules -S= -q' \
-  '(-E --env)'{-E,--env}'[specify the environment option]' \
-  '(-r --reload)'{-r,--reload}'[make plackup to watch updates from your development directory and restarts the server whenever a file is updated]' \
-  '(-R --Reload)'{-R,--Reload}'[allows you to specify the path to watch file updates separated by comma]' \
-  '(-L --Loader)'{-L,--Loader}'[specify the server loading subclass that implements how to run the server]' \
-  '(--access-log)--access-log[specify the pathname of a file where the access log should be written]' \
-  '(--path)--path[Speficy the root path of application to run]' \
-  '(- :)'{-h,--help}'[show help]' \
-  '(- :)--version[show version]' \
-  '(1 *): :_files' && return 0
+  \*{-E,--env}'[Specifies the environment option]:env' \
+  '(--no-default-middleware)--no-default-middleware[prevents loading middleware stack]' \
+  '(-r --reload)'{-r,--reload}'[Makes plackup restart the server whenever a file in your development directory changes]' \
+  '(-R --Reload)'{-R,--Reload}'[Makes plackup restart the server whenever a file in any of the given directories changes]: :_files -/' \
+  '(-L --Loader)'{-L,--Loader}'[Specifies the server loading subclass that implements how to run the server]:subclass' \
+  '--access-log[Specifies the pathname of a file where the access log should be written]:_files' \
+  '--path[Specify the root path of application to run]: :_files -/' \
+  '(- :)'{-h,--help}'[Show help]' \
+  '(- :)--version[Show version]' \
+  '*: :_files -g "*.psgi"' && return 0
 
 # Local Variables:
 # mode: Shell-Script
