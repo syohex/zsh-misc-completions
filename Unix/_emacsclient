@@ -26,22 +26,28 @@
 # Description
 # -----------
 #
-#  Completion script for emacsclient (https://www.gnu.org/software/emacs/manual/html_node/emacs/Invoking-emacsclient.html
+#  Completion script for emacsclient 29 (https://www.gnu.org/software/emacs/manual/html_node/emacs/Invoking-emacsclient.html
 #
 # ------------------------------------------------------------------------------
 
 _arguments -s -n : \
-  '(-a --alternate-editor)'{-a,--alternate-editor=}'[Run specified editor if Emacs server is not running]' \
-  '(-c --create-frame)'{-c,--create-frame}'[Create a new frame]' \
-  '(-F --frame-parameters)'{-F,--frame-parameters=}'[Set the parameters of a new frame]' \
-  '(-d --display)'{-d,--display=}'[Tell the server to display the files on the given display]' \
+  '(- *)'{-V,--version}'[Print version information and exit]' \
+  '(- *)'{-H,--help}'[Print this usage information message and exit]' \
+  '(-nw -t --tty)'{-nw,-t,--tty}'[Open a new Emacs frame on the current terminal]' \
+  '(-c --create-frame)'{-c,--create-frame}'[Create a new frame instead of trying to use the current Emacs frame]' \
+  '(-r --reuse-frame)'{-r,--reuse-frame}'[Create a new frame if none exists, otherwise use the current Emacs frame]' \
+  '(-F --frame-parameters)'{-F,--frame-parameters=}'[Set the parameters of a new frame]:alist' \
   '(-e --eval)'{-e,--eval}'[Evaluate as Emacs Lisp expressions]' \
-  '(-f --server-file)'{-f,--server-file}'[Use configuration file]:conffile:_files' \
   '(-n --no-wait)'{-n,--no-wait}'[Returns immediately without waiting for finish]' \
-  '(-nw -t --tty)'{-nw,-t--tty}'[Open a new Emacs frame on the current terminal]' \
-  '(-s --socket-name)'{-s,--socket-name}'[Use named socket]:sockfile:_files' \
-  '(-)'{-V,--version}'[Print version information and exit]' \
-  '(-)'{-H,--help}'[Print this usage information message and exit]' \
+  '(-w --timeout)'{-w,--timeout=}'[Seconds to wait before timing out]:seconds' \
+  '(-q --quiet)'{-q,--quiet}"[Don't display messages on success]" \
+  '(-u --suppress-output)'{-u,--suppress-output}"[Don't display return values from the server]" \
+  '(-d --display)'{-d,--display=}'[Tell the server to display the files on the given display]:display:_x_display' \
+  '--parent-id=[Open in parent window ID, via XEmbed]' \
+  '(-s --socket-name)'{-s,--socket-name=}'[Set filename of the UNIX socket for communication]: :_files' \
+  '(-f --server-file)'{-f,--server-file=}'[Set filename of the TCP authentication file]: :_files' \
+  '(-a --alternate-editor)'{-a,--alternate-editor=}'[Editor to fallback to if the server is not running if EDITOR is the empty string]:editor:_files' \
+  '(-T --tramp)'{-T,--tramp=}'[PREFIX to prepend to filenames sent by emacsclient for locating files remotely via Tramp]:prefix' \
   '*: :_files'
 
 # Local Variables:
