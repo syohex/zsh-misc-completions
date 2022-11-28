@@ -21,18 +21,35 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for start_server 0.35 (https://github.com/kazuho/p5-Server-Starter)
+#
+# ------------------------------------------------------------------------------
 
-local -a signals
-signals=($(kill -l | perl -lne 'print "SIG$_" for split q{ }'))
+local -a signals=($(kill -l | perl -lne 'print "SIG$_" for split " "'))
 
 _arguments -n : \
-  '(--port)--port=[TCP port to listen to]' \
-  '(--path)--path=[path at where to listen using UNIX socket]' \
-  '(--interval)--interval=[minimum interval to respawn the server program]' \
-  '(--signal-on-hup)--signal-on-hup=[signal to be sent the server process when start_server receives a SIGHUP]: :($signals)' \
-  '(--signal-on-term)--signal-on-term=[signal to be sent the server process when start_server receives a SIGTERM]: : '"($signals)" \
-  '(--pid-file)--pid-file=[pid file]: :_files' \
-  '(--restart)--restart[ss]' \
+  '--port=[TCP port to listen to]:port' \
+  '--path=[path at where to listen using UNIX socket]: :_files' \
+  '--dir=[working directory, start_server do chdir to before exec]: :_files -/' \
+  '--interval=[minimum interval to respawn the server program(default: 1)]:seconds' \
+  '--signal-on-hup=[signal to be sent the server process when start_server receives a SIGHUP]: :'"($signals)" \
+  '--signal-on-term=[signal to be sent the server process when start_server receives a SIGTERM]: :'"($signals)" \
+  '--pid-file=[if set, writes the process id of the start_server process to the file]: :_files' \
+  '--status-file=[if set, writes the status of the server process to the file]: :_files' \
+  '--envdir=[directory that contains environment variables to the server processes and superdaemon]: :_files -/' \
+  '--log-file=[if set, redirects STDOUT and STDERR to given file or command]: :_files' \
+  '--daemonize[daemonizes the server(by doing fork, setsid, fork). Must be used together with "--log-file"]' \
+  '--enable-auto-restart[enables automatic restart by time]' \
+  '--auto-restart-interval=[automatic restart interval(default 360)]:seconds' \
+  '--kill-old-delay=[time to suspend to send a signal to the old worker]:seconds' \
+  '--backlog=[specifies a listen backlog parameter, whose default is SOMAXCONN]:backlog' \
+  '--restart[sends SIGHUP to the process and waits until the server of the older generation die]' \
+  '--stop[sends SIGTERM to the process]' \
   '(- :)--help[prints this help]' \
   '(- :)--version[prints the version number]' \
   '(-):command: _command_names -e' \
