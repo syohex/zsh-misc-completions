@@ -21,82 +21,105 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for Minilla v3.1.20 (https://github.com/tokuhirom/Minilla)
+#
+# ------------------------------------------------------------------------------
 
-typeset -A opt_args
-local context state line
+_minil() {
+  typeset -A opt_args
+  local context state line
+  local ret=1
 
-local -a _minil_subcommands
-_minil_subcommands=(
-  'new:Create a new dist'
-  'build:Build distribution'
-  'test:Run test cases'
-  'clean:Clean up directory'
-  'dist:Make dist tarball'
-  'install:Install distribution'
-  'release:Release distribution to CPAN'
-  'migrate:Migrate existed distribution repo'
-  'run:Run arbitrary commands'
-  'help:Help me'
-)
+  _arguments -C \
+    '(- *)'{-h,--help}'[Print this usage information]' \
+    '(- *)--version[Print this usage information]' \
+    '--nocolor[Disable color output]' \
+    '--debug[Enable debug mode]' \
+    '1: :_minil_commands' \
+    '*::arg:->args' \
+    && ret=0
 
-_arguments '*:: :->subcmd'
+  case "$state" in
+    (args)
+      local -a opts
+      local curcontext=$context
 
-if [[ "$state" == "subcmd" ]];then
+      case "$words[1]" in
+        (new)
+          opts=(
+            '--username[Specifies Username]:username'
+            '--email[Specifies Email Address]:email'
+            '(-p --profile)'{-p,--profile}'[Minilla profile]:profiles:(XS)'
+          )
+          ;;
+        (clean)
+          opts=('-y[delete files without asking]')
+          ;;
+        (install|dist)
+          opts=('--no-test[Do not run test]')
+          ;;
+        (release)
+          opts=(
+            '--no-test[Do not run test]'
+            '--trial[Trial release]'
+            '--dry-run[Dry run mode]'
+            '--pause-config=[Path to a CPAN::Uploader configuration file]:file:_files'
+          )
+          ;;
+        (test)
+          opts=(
+            '--release[enable the RELEASE_TESTING env variable]'
+            '--automated[enable the AUTOMATED_TESTING env variable]'
+            '--author[enable the AUTHOR_TESTING env variable]'
+            '--all[enable the all options, release, automated and author]'
+          )
+          ;;
+        (run)
+          opts=()
+          _arguments -s : "$opts[@]" '*::arguments:_normal'
+          return 0
+          ;;
+        (help)
+          local -a subcommands
+          subcommands=(new build test clean dist install release migrate help)
+          _arguments -s : "()"'*: :'"($subcommands)"
+          return 0
+          ;;
+        *)
+          opts=()
+          ;;
+      esac
+      _arguments -s : "$opts[@]" '*::Files:_files' && ret=0
+      ;;
+  esac
 
-  if (( CURRENT == 1)); then
-    _describe -t commands "minil command" _minil_subcommands -V1
-    return
-  else
-    local opts curcontext
+  return $ret
+}
 
-    case "$words[1]" in
-      new)
-        opts=(
-          '(--username)--username[Specifies Username]:username:'
-          '(--email)--email[Specifies Email Address]:email:'
-          '(-p|--profile)'{-p,--profile}'[Minilla profile]:profiles:(XS)'
-        )
-        ;;
-      clean)
-        opts=('(-y)-y[delete files without asking]')
-        ;;
-      install)
-        opts=('--no-test[Do not run test]')
-        ;;
-      release)
-        opts=(
-          '--no-test[Do not run test]'
-          '--trial[Trial release]'
-          '--dry-run[Dry run mode]'
-          '--pause-config=[Path to a CPAN::Uploader configuration file]:file:_files'
-        )
-        ;;
-      test)
-        opts=(
-          '--release[enable the RELEASE_TESTING env variable]'
-          '--automated[enable the AUTOMATED_TESTING env variable]'
-          '--author[enable the AUTHOR_TESTING env variable]'
-          '--all[enable the All env variables]'
-        )
-        ;;
-      run)
-        opts=()
-        _arguments -s : "$opts[@]" '*::arguments:_normal'
-        return 0
-        ;;
-      help)
-        local -a subcommands
-        subcommands=(new build test clean dist install release migrate help)
-        _arguments -s : "()"'*: :'"($subcommands)"
-        return 0
-        ;;
-      *)
-        opts=()
-        ;;
-    esac
-    _arguments -s : "$opts[@]" '*::Files:_files'
-  fi
-fi
+(( $+functions[_minil_commands] )) ||
+_minil_commands() {
+  local -a commands=(
+    'new:Create a new dist'
+    'build:Build distribution'
+    'test:Run test cases'
+    'clean:Clean up directory'
+    'dist:Make dist tarball'
+    'install:Install distribution'
+    'release:Release distribution to CPAN'
+    'migrate:Migrate existed distribution repo'
+    'run:Run arbitrary commands'
+    'help:Help me'
+  )
+
+  _describe -t commands 'commands' commands
+}
+
+_minil "$@"
 
 # Local Variables:
 # mode: Shell-Script
