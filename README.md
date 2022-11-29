@@ -5,7 +5,7 @@
 - clang-format
 - clang-tidy
 - emacsclient
-- gtags
+- [gtags](https://www.gnu.org/software/global/)
 - porg
 - peco
 

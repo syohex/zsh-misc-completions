@@ -26,29 +26,33 @@
 # Description
 # -----------
 #
-#  Completion script for gtags (https://www.gnu.org/software/global/)
+#  Completion script for gtags 6.6.8 (https://www.gnu.org/software/global/)
 #
 # ------------------------------------------------------------------------------
 
 _arguments -n : \
-  '(--accept-dotfiles)--accept-dotfiles[Accept dot files and dot directories]' \
+  '--accept-dotfiles[Accept dot files and dot directories]' \
   '(-c --compact)'{-c,--compact}'[Make GTAGS in compact format]' \
-  '(--config)--config[Print the value of config variable name]' \
-  '(-d --dump)'{-d,--dump}'[Dump a tag file]' \
-  '(--explain)--explain[Explain handling files]' \
+  '(-C --directory)'{-C,--directory}'[Change the directory before doing all the work including parameter analysis]: :_files -/' \
+  '*--config[Print the value of config variable name]::name:(bindir libdir datadir localstatedir sysconfdir)' \
+  '(-d --dump)'{-d,--dump}'[Dump a tag file]: :_files' \
+  '--explain[Explain handling files]' \
   '(-f --file)'{-f,--file}'[Browse through all source files whose names are listed in file]:file:_files' \
-  '(--gtagsconf)--gtagsconf=-[Set the GTAGSCONF envirnoment variable to file]:conffile:_files' \
-  '(--gtagslabel)--gtagslabel=-[Set the GTAGSLABEL environment variable to label]::labels:(default native ctags new-ctags pygments)' \
+  '--gtagsconf=-[Set the GTAGSCONF environment variable to file]:conffile:_files' \
+  '--gtagslabel=-[Set the GTAGSLABEL environment variable to label]::labels:(default native ctags new-ctags pygments)' \
   '(-I --idutils)'{-I,--idutils}'[Also make the ID database file for idutils]' \
   '(-i --incremental)'{-i,--incremental}'[Update tag files incrementally]' \
-  '(-O --objdir)'{-O,--objdir}'[Use BSD-style objedir as location of tag files]' \
-  '(--single-update)--single-update[Update tag files for single file]:singlefile:_files' \
-  '(--sqlite3)--sqlite3[Use SQLite3 API to make tag files]' \
-  '(--statistics)--statistics[Print statistics information]' \
+  '(-O --objdir)'{-O,--objdir}'[Use BSD-style objdir as location of tag files]' \
+  '--single-update[Update tag files for single file]:singlefile:_files' \
+  '--skip-unreadable[Skip unreadable files]' \
+  '--skip-symlink:: :(f a d)' \
+  '--sqlite3[Use SQLite3 API to make tag files]' \
+  '--statistics[Print statistics information]' \
   '(-q --quiet)'{-q,--quiet}'[Quiet mode]' \
   '(-v --verbose)'{-v,--verbose}'[Verbose mode]' \
   '(-w --warning)'{-w,--warning}'[Print warnings messages]' \
   '(--debug)--debug[Enable debug mode]' \
+  '(- *)--version[Show version number]' \
   '(- :)--help[Print usage message]' \
   '*: :_files -/'
 
