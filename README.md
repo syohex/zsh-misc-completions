@@ -2,18 +2,19 @@
 
 ## Unix
 
-- clang-format
+- [clang-format](https://clang.llvm.org/docs/ClangFormat.html)
 - clang-tidy
-- emacsclient
+- [emacsclient](https://www.gnu.org/software/emacs/)
 - [gtags](https://www.gnu.org/software/global/)
-- porg
+- [porg](https://github.com/miyagawa/cpanminus)
 - peco
 
 ## Perl
 
 - [carmel](https://github.com/miyagawa/Carmel)
 - [carton](https://github.com/perl-carton/carton)
-- cpanm
+- [cpanm](https://github.com/miyagawa/cpanminus)
+- [cpm](https://github.com/skaji/cpm)
 - milla
 - [minil](https://github.com/tokuhirom/Minilla)
 - [perl-build](https://github.com/tokuhirom/Perl-Build)
