@@ -21,73 +21,89 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for the carton v1.0.35 (https://github.com/perl-carton/carton)
+#
+# ------------------------------------------------------------------------------
 
-typeset -A opt_args
-local context state line
+_carton() {
+  typeset -A opt_args
+  local context state line
+  local ret=1
 
-local -a _carton_subcommands
-_carton_subcommands=(
-  "bundle:Bundle dependencies"
-  "check:Check if your cpanfile and local environment are in sync"
-  "exec:Execute your script in a carton local environment"
-  "help:Show document"
-  "install:Install dependencies"
-  "list:List dependencies tracked in the carton.lock file"
-  "show:Show the module information"
-  "tree:List dependencies in a tree structure"
-  "update:Update distribution"
-  "usage:Show usage"
-  "version:Show version"
-)
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help message]' \
+    '(- *)'{-v,--version}'[Show version number and exit]' \
+    '--verbose[Enable verbose mode]' \
+    '1: :_carton_subcommands' \
+    '*:: :->args' && ret=1
 
-_arguments '*:: :->subcmd'
-
-if [[ "$state" == "subcmd" ]];then
-
-  if (( CURRENT == 1)); then
-    _describe -t commands "carton command" _carton_subcommands -V1
-    return
-  else
-    local opts curcontext subcmds
-
-    case "$words[1]" in
-      check)
-        opts=('(--cpanfile)--cpanfile=[Specify cpanfile path]: :_files')
+  case $state in
+    (args)
+      case "$words[1]" in
+      (check)
+        opts=('--cpanfile=[Specify cpanfile path]: :_files')
         ;;
-      install)
+      (install)
         opts=(
           '(-p --path)'{-p,--path}'[Specify the path to install modules to]: :_files -/'
-          '(--cpanfile)--cpanfile[Specify the alternate path for cpanfile]: :_files'
+          '--cpanfile[Specify the alternate path for cpanfile]: :_files'
           '(--deployment --nodeployment)--deployment[Force the deployment mode]'
           '(--deployment --nodeployment)--nodeployment[No deplyment mode]'
-          '(--without)--without[Specify phases or features to exclude]: :(development)'
-          '(--cached --nocached)--cached[Use mirror]'
-          '(--cached --nocached)--nocached[Not use mirror]'
+          '--without[Specify phases or features to exclude]: :(development)'
+          '(--cached --nocached)--cached[Use cache]'
+          '(--cached --nocached)--nocached[Not use cache]'
         )
         ;;
-      list)
+      (list)
         opts=(
-          '(--distfile)--distfile[Displays the list of distributions in a distfile format]'
+          '--distfile[Displays the list of distributions in a distfile format]'
         )
         ;;
-      help)
-        opts=()
-        subcmds=(
-          "bundle" "check" "exec" "FAQ" "install" "list" "show" "tree" "update" "version"
-        )
-        _arguments -s : "$opts[@]" "*::subcommands:($subcmds)" && return 0
+      (help)
+        _carton_subcommands
+        return 0
         ;;
-      exec)
+      (exec)
         opts=()
-        _arguments -s : "$opts[@]" '*::arguments:_normal' && return 0
+        _arguments -s : "$opts[@]" '*::arguments:_normal'
+        return 0
         ;;
-      *)
+      (*)
         opts=()
         ;;
     esac
-    _arguments -s : "$opts[@]" '*:: :()'
-  fi
-fi
+    _arguments -s : "$opts[@]" '*:: :()' && ret=0
+    ;;
+  esac
+
+  return $ret
+}
+
+_carton_subcommands() {
+  local -a commands=(
+    'bundle:Bundle dependencies'
+    'check:Check if your cpanfile and local environment are in sync'
+    'exec:Execute your script in a carton local environment'
+    'fatpack:fatpack module'
+    'help:Show document'
+    'install:Install dependencies'
+    'list:List dependencies tracked in the carton.lock file'
+    'show:Show the module information'
+    'tree:List dependencies in a tree structure'
+    'update:Update distribution'
+    'usage:Show usage'
+    'version:Show version'
+  )
+
+  _describe -t subcommands 'subcommands' commands
+}
+
+_carton "$@"
 
 # Local Variables:
 # mode: Shell-Script
