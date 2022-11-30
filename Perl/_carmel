@@ -21,50 +21,65 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for carmel v0.1.56 (https://github.com/miyagawa/Carmel)
+#
+# ------------------------------------------------------------------------------
 
-typeset -A opt_args
-local context state line
+_carmel() {
+  typeset -A opt_args
+  local context state line
+  local ret=1
 
-local -a _carmel_subcommands
-_carmel_subcommands=(
-  "install: Install dependencies"
-  "export: Generate export environments variables for shell scripting"
-  "env:Show related environment variables(PATH, PERL5OPT)"
-  "find: Find module in a repository"
-  "show: Show module location"
-  "list: List all the modules to be loaded"
-  "update: Update modules"
-  "diff: show diffs for cpanfile.snapshot"
-  "tree: List all the modules in a tree"
-  "exec: Run your perl script with modules from artifacts"
-  "rollout: Roll out the currently selected modules into ./local"
-  "package: Package modules tarballs and index into ./vendor/cache"
-  "help:Show help"
-  "version:Show version"
-)
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help message]' \
+    '(- *)--version[Show version and exit]' \
+    '(-v --verbose)'{-v,--verbose}'[Enable debug mode]' \
+    '1: :_carmel_subcommands' \
+    '*:: :->args' && ret=0
 
-_arguments '*:: :->subcmd'
-
-if [[ "$state" == "subcmd" ]];then
-
-  if (( CURRENT == 1)); then
-    _describe -t commands "carmel command" _carmel_subcommands -V1
-    return
-  else
-    local opts curcontext subcmds
-
-    case "$words[1]" in
-      exec)
-        opts=()
-        _arguments -s : "$opts[@]" '*::arguments:_normal' && return 0
+  case $state in
+    (args)
+      case $words[1] in
+        (exec)
+          _arguments -s : "$opts[@]" '*::arguments:_normal' && ret=0
         ;;
-      *)
-        opts=()
-        ;;
-    esac
-    _arguments -s : "$opts[@]" '*:: :()'
-  fi
-fi
+        (*)
+          ret=0
+          ;;
+      esac
+  esac
+
+  return $ret
+}
+
+(( $+functions[_carmel_subcommands] )) ||
+_carmel_subcommands() {
+  local -a commands=(
+    "install:Install dependencies"
+    "export:Generate export environments variables for shell scripting"
+    "env:Show related environment variables(PATH, PERL5OPT)"
+    "find:Find module in a repository"
+    "show:Show module location"
+    "list:List all the modules to be loaded"
+    "update:Update modules"
+    "diff:Show diffs for cpanfile.snapshot"
+    "tree:List all the modules in a tree"
+    "exec:Run your perl script with modules from artifacts"
+    "rollout:Roll out the currently selected modules into ./local"
+    "package:Package modules tarballs and index into ./vendor/cache"
+    "help:Show help"
+    "version:Show version"
+  )
+
+  _describe -t subcommands "subcommands" commands
+}
+
+_carmel "$@"
 
 # Local Variables:
 # mode: Shell-Script

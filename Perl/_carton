@@ -84,6 +84,7 @@ _carton() {
   return $ret
 }
 
+(( $+functions[_carton_subcommands] )) ||
 _carton_subcommands() {
   local -a commands=(
     'bundle:Bundle dependencies'

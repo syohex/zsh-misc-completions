@@ -11,7 +11,7 @@
 
 ## Perl
 
-- carmel
+- [carmel](https://github.com/miyagawa/Carmel)
 - [carton](https://github.com/perl-carton/carton)
 - cpanm
 - milla
