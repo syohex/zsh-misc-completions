@@ -1,11 +1,12 @@
 #!/usr/bin/env zsh
 set -e
 
-local destination=$1
-if [[ -z "$destination" ]]; then
-  "Usage: $0 dest_dir"
-  exit 1
+local destination=$HOME/.zsh/completions
+if [[ -n "$1" ]]; then
+  destination=$1
 fi
+
+mkdir -p "$destination"
 
 local -a files
 if [[ $OSTYPE == darwin* ]]; then
@@ -14,10 +15,8 @@ else
   files=(${(@f)"$(find Unix Perl -name '_*' -type f)"})
 fi
 
-
 for file in $files
 do
-  local base=$(basename $file)
-  echo "Create symbolic link $destination/$base"
-  ln -sf $PWD/$file "$destination/$base"
+  echo "Create symbolic link $file => $destination/"
+  ln -sf $PWD/$file "$destination"
 done

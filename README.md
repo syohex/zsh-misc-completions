@@ -38,8 +38,8 @@ mkdir -p ~/.zsh/completions
 fpath=(~/.zsh/completions $fpath)
 ```
 
-Run `example_setup.sh`
+Run `setup.sh`
 
 ```zsh
-./example_setup.sh ~/.zsh/completions
+./setup.sh ~/.zsh/completions
 ```
