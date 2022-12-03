@@ -2,8 +2,6 @@
 
 ## Unix
 
-- [clang-format](https://clang.llvm.org/docs/ClangFormat.html)
-- clang-tidy
 - [emacsclient](https://www.gnu.org/software/emacs/)
 - [gtags](https://www.gnu.org/software/global/)
 - [porg](https://github.com/miyagawa/cpanminus)
