@@ -10,9 +10,9 @@ mkdir -p "$destination"
 
 local -a files
 if [[ $OSTYPE == darwin* ]]; then
-  files=(${(@f)"$(find Unix Perl macOS -name '_*' -type f)"})
+  files=(${(@f)"$(find Unix Perl dotnet macOS -name '_*' -type f)"})
 else
-  files=(${(@f)"$(find Unix Perl -name '_*' -type f)"})
+  files=(${(@f)"$(find Unix Perl dotnet -name '_*' -type f)"})
 fi
 
 for file in $files
