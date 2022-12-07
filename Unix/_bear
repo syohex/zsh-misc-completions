@@ -1,0 +1,66 @@
+#compdef bear
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2022 Shohei YOSHIDA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for bear 3.0.20 (https://github.com/rizsotto/Bear)
+#
+# ------------------------------------------------------------------------------
+
+typeset -A opt_args
+local context state line
+
+_arguments -C \
+  '--output[path of the result file(default: compile_commands.json)]: :_files' \
+  '--verbose[run in verbose mode]' \
+  '--append[append result to an existing output file]' \
+  '--config[path of the config file]: :_files' \
+  '--force-preload[force to use library preload]' \
+  '--force-wrapper[force to use compiler wrappers]' \
+  '--citnames[path to the citnames executable]: :_files' \
+  '--interceptor[path to the intercept executable]: :_files' \
+  '--library[path to preload library]: :_files' \
+  '--wrapper[path to the wrapper executable]: :_files' \
+  '--wrapper-dir[path to the wrapper directory]: :_files -/' \
+  '(- *)--help[print help and exit]' \
+  '(- *)--version[print version and exit]' \
+  '1: :(--)' \
+  '*:: :->args'
+
+case $state in
+  (args)
+    compset -n 2
+    _normal
+    ;;
+esac
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
