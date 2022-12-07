@@ -6,6 +6,8 @@
 - [gtags](https://www.gnu.org/software/global/)
 - [porg](https://github.com/miyagawa/cpanminus)
 - peco
+- [compiledb](https://github.com/nickdiego/compiledb)
+- [bear](https://github.com/rizsotto/Bear)
 
 ## Perl
 
