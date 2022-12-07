@@ -15,7 +15,7 @@
 - [carton](https://github.com/perl-carton/carton)
 - [cpanm](https://github.com/miyagawa/cpanminus)
 - [cpm](https://github.com/skaji/cpm)
-- milla
+- [milla](https://github.com/miyagawa/Dist-Milla)
 - [minil](https://github.com/tokuhirom/Minilla)
 - [perl-build](https://github.com/tokuhirom/Perl-Build)
 - [plackup](https://github.com/plack/Plack)
