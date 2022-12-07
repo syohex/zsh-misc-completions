@@ -30,14 +30,11 @@
 #
 # ------------------------------------------------------------------------------
 
-_compiledb_run_make() {
-  if (( $+functions[_make] )); then
-    compset -n 1
-    _make "$@"
-  fi
-}
+typeset -A opt_args
+local context state line
+local ret=1
 
-_arguments -n : \
+_arguments -C \
   '(-p --parse)'{-p,--parse}'[Build log file to parse compilation commands from(default: stdin)]: :_files' \
   '(-o --output)'{-o,--output}'[Output file name(default: compile_commands.json)]: :_files' \
   '(-d --build-dir)'{-d,--build-dir}'[Path to be used as initial build dir]: :_files -/' \
@@ -49,7 +46,18 @@ _arguments -n : \
   '--full-path[Write full path to the compiler executable]' \
   '--command-style[Output compilation database with single "command" string]' \
   '1: :(make)' \
-  '*: :_compiledb_run_make'
+  '*: :->make_args' && ret=0
+
+case $state in
+  (make_args)
+    if (( $+functions[_make] )); then
+      compset -n 2
+      _make "$@" && ret=0
+    fi
+    ;;
+esac
+
+return $ret
 
 # Local Variables:
 # mode: Shell-Script
