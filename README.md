@@ -8,6 +8,7 @@
 - peco
 - [compiledb](https://github.com/nickdiego/compiledb)
 - [bear](https://github.com/rizsotto/Bear)
+- [grpcurl](https://github.com/fullstorydev/grpcurl)
 
 ## Perl
 
