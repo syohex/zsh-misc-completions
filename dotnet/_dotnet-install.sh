@@ -51,7 +51,7 @@ _arguments \
   '--no-path[The installation folder is not exported to the path for the current session]' \
   '--quality[Downloads the latest build of the specified quality in the channel]: :($channel)' \
   '--runtime[Installs just the shared runtime, not the entire SDK]: :(dotnet aspnetcore windowsdesktop)' \
-  '--op[Specifies the operating system]: :(osx linux linux-musl freebsd)' \
+  '--os[Specifies the operating system]: :(osx linux linux-musl freebsd)' \
   '--shared-runtime[Installs just the shared runtime bits, not the entire SDK]' \
   '--skip-non-versioned-files[Skips installing non-versioned files]' \
   '--uncached-feed[allows using a different storage to download SDK archives from]' \
