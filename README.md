@@ -2,7 +2,6 @@
 
 ## Unix
 
-- [emacsclient](https://www.gnu.org/software/emacs/)
 - [gtags](https://www.gnu.org/software/global/)
 - [porg](https://github.com/miyagawa/cpanminus)
 - peco
