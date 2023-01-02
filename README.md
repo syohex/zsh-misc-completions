@@ -32,7 +32,6 @@
 - mediastreamsegmenter
 - mediastreamvalidator
 - mediasubtitlesegmenter
-- screencapture
 
 ## Setup example
 
