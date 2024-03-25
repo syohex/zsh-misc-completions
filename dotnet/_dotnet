@@ -1,0 +1,439 @@
+#compdef dotnet
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2024 Shohei YOSHIDA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for dotnet 8.0.200 (https://github.com/dotnet/sdk)
+#
+# ------------------------------------------------------------------------------
+
+_dotnet() {
+  local context state state_descr line
+  typeset -A opt_args
+  local ret=1
+
+  _arguments -C \
+    '(- : *)'{-h,--help}'[Show command line help]' \
+    '(- : *)--version[Display .NET SDK version in use]' \
+    '(-d --diagnostics)'{-d,--diagnostics}'[Enable diagnostic output]' \
+    '--info[Display .NET information]' \
+    '--list-runtimes[Display the installed runtimes]' \
+    '--list-sdks[Display the installed SDKs]' \
+    '1: :_dotnet_commands' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (add)
+          _dotnet_add && ret=0
+          ;;
+        (build)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--use-current-runtime[Use current runtime as the target runtime]' \
+            \*{-f,--framework}'[The target framework to build for]:framework' \
+            '(-c --configuration)'{-c,--configuration}'[The configuration to use for building the project]:configuration:(Debug Release)' \
+            '(-r --runtime)'{-r,--runtime}'[The target runtime to build for]:runtime:_dotnet_rids' \
+            '--version-suffix[Set the value of the $VersionSuffix property to use when building the project]:suffix' \
+            '--no-restore[Do not restore the project before building]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '(-v --verbosity)'{-v,--verbosity}'[Set the MSBuild verbosity level]: :_dotnet_verbosities' \
+            '(-o --output)'{-o,--output}'[The output directory to place built artifacts in]: :_files -/' \
+            '--no-incremental[Do not use incremental building]' \
+            '--no-dependencies[Do not build project-to-project references and only build the specified project]' \
+            '--nologo[Do not display the startup banner of the copyright message]' \
+            '(--no-self-contained --sc --self-contained)'{--sc,--self-contained}'[Publish the .NET runtime with your application]' \
+            '(--no-self-contained --sc --self-contained)--no-self-contained[Publish your application as a framework dependent application]' \
+            '(-a --arch)'{-a,--arch}'[The target architecture]:arch:_dotnet_arches' \
+            '--os[The target operating system]:os:_dotnet_oses' \
+            '--disable-build-servers[Force the command to ignore any persistent build server]' \
+            '*: :_dotnet_project_files' && ret=0
+          ;;
+        (clean)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            \*{-f,--framework}'[The target framework to clean for]:framework' \
+            '(-c --configuration)'{-c,--configuration}'[The configuration to clean for]:target' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '(-v --verbosity)'{-v,--verbosity}'[Set the MSBuild verbosity level]: :_dotnet_verbosities' \
+            '(-o --output)'{-o,--output}'[The directory containing the build artifacts to clean]: :_files -/' \
+            '--nologo[Do not display the startup banner or the copyright message]' \
+            '*: :_files'
+          ;;
+        (list)
+          _dotnet_list && ret=0
+          ;;
+        (new)
+          _dotnet_new && ret=0
+          ;;
+        (publish)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--use-current-runtime[Use current runtime as the target runtime]' \
+            '(-o --output)'{-o,--output}'[The output directory to place built artifacts in]: :_files -/' \
+            '--artifacts-path[The artifacts path]:dir:_files -/' \
+            '--manifest[The path to a target manifest file]:manifest:_files' \
+            '--no-build[Do not build the project before publishing]' \
+            '(--no-self-contained --sc --self-contained)'{--sc,--self-contained}'[Publish the .NET runtime with your application]' \
+            '(--no-self-contained --sc --self-contained)--no-self-contained[Publish your application as a framework dependent application]' \
+            '--nologo[Do not display the startup banner of the copyright message]' \
+            \*{-f,--framework}'[The target framework to build for]:framework' \
+            '(-r --runtime)'{-r,--runtime}'[The target runtime to build for]:runtime:_dotnet_rids' \
+            '(-c --configuration)'{-c,--configuration}'[The configuration to use for building the project]:configuration:(Debug Release)' \
+            '--version-suffix[Set the value of the $VersionSuffix property to use when building the project]:suffix' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--no-restore[Do not restore the project before building]' \
+            '(-v --verbosity)'{-v,--verbosity}'[Set the MSBuild verbosity level]: :_dotnet_verbosities' \
+            '(-a --arch)'{-a,--arch}'[The target architecture]:arch:_dotnet_arches' \
+            '--os[The target operating system]:os:_dotnet_oses' \
+            '--disable-build-servers[Force the command to ignore any persistent build server]' \
+            '*: :_dotnet_project_files' && ret=0
+          ;;
+        (run)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '(-c --configuration)'{-c,--configuration}'[The configuration to use for building the project]:configuration:(Debug Release)' \
+            \*{-f,--framework}'[The target framework to build for]:framework' \
+            '(-r --runtime)'{-r,--runtime}'[The target runtime to build for]:runtime:_dotnet_rids' \
+            '--project[The path to the project file to run]:project:_dotnet_project_files' \
+            \*{-p,--property}'[Properties to be passed to MSBuild]:property' \
+            '(-lp --laungh-profile --no-launch-profile)'{-lp,--launch-profile}'[The name of the launch profile]:profile:_files' \
+            '(-lp --laungh-profile --no-launch-profile)--no-launch-profile[Do not attempt to use the launch profile]' \
+            '--no-build[Do not build the project before publishing]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--no-restore[Do not restore the project before building]' \
+            '(--no-self-contained --sc --self-contained)'{--sc,--self-contained}'[Publish the .NET runtime with your application]' \
+            '(--no-self-contained --sc --self-contained)--no-self-contained[Publish your application as a framework dependent application]' \
+            '(-v --verbosity)'{-v,--verbosity}'[Set the MSBuild verbosity level]: :_dotnet_verbosities' \
+            '(-a --arch)'{-a,--arch}'[The target architecture]:arch:_dotnet_arches' \
+            '--os[The target operating system]:os:_dotnet_oses' \
+            '--disable-build-servers[Force the command to ignore any persistent build server]' \
+            '*: :_dotnet_project_files' && ret=0
+          ;;
+        (sln)
+          _dotnet_sln && ret=0
+          ;;
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_dotnet_commands] )) ||
+_dotnet_commands() {
+  local -a commands=(
+    "add:Add a package or reference to a .NET project"
+    "build:Build a .NET project"
+    "build-server:Interact with servers started by a build"
+    "clean:Clean build outputs of a .NET project"
+    "format:Apply style preferences to a project or solution"
+    "help:Show command line help"
+    "list:List project references of a .NET project"
+    "msbuild:Run Microsoft Build Engine (MSBuild) commands"
+    "new:Create a new .NET project or file"
+    "nuget:Provides additional NuGet commands"
+    "pack:Create a NuGet package"
+    "publish:Publish a .NET project for deployment"
+    "remove:Remove a package or reference from a .NET project"
+    "restore:Restore dependencies specified in a .NET project"
+    "run:Build and run a .NET project output"
+    "sdk:Manage .NET SDK installation"
+    "sln:Modify Visual Studio solution files"
+    "store:Store the specified assemblies in the runtime package store"
+    "test:Run unit tests using the test runner specified in a .NET project"
+    "tool:Install or manage tools that extend the .NET experience"
+    "vstest:Run Microsoft Test Engine (VSTest) commands"
+    "workload:Manage optional workloads"
+    "dev-certs:Create and manage development certificates"
+    "fsi:Start F# Interactive / execute F# scripts"
+    "user-jwts:Manage JSON Web Tokens in development"
+    "user-secrets:Manage development user secrets"
+    "watch:Start a file watcher that runs a command when files change"
+  )
+
+  _describe -t 'commands' "commands" commands
+}
+
+(( $+functions[_dotnet_add] )) ||
+_dotnet_add() {
+  local ret=1
+
+  local -a commands=(
+    'package:Add a NuGet package reference to the project'
+    'reference:Add a project-to-project reference to the project'
+  )
+
+  _arguments -C \
+    '(- : *)'{-h,--help}'[Show command line help]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (package)
+          _arguments  \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '(-v --version)'{-v,--version}'[The version of the package to add]:version' \
+            \*{-f,--framework}'[Add the reference only when targeting a specific framework]:framework' \
+            '(-n --no-restore)'{-n,--no-restore}'[Add the reference without performing restore preview and compatibility check]' \
+            '(-s --source)'{-s,--source}'[The NuGet package source to use during the restore]: :_files' \
+            '--package-directory[The directory to restore packages to]: :_files -/' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--prerelease[Allow prerelease packages to be installed]' \
+            '*: :_dotnet_project_files' && ret=0
+          ;;
+        (reference)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            \*{-f,--framework}'[Add the reference only when targeting a specific framework]:framework' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '*: :_dotnet_project_files' && ret=0
+          ;;
+      esac
+    ;;
+  esac
+}
+
+(( $+functions[_dotnet_help] )) ||
+_dotnet_help() {
+  _arguments \
+    '(- : *)'{-h,--help}'[Show command line help]' \
+    '1: :_dotnet_commands'
+}
+
+(( $+functions[_dotnet_list] )) ||
+_dotnet_list() {
+  local ret=1
+  local -a commands=(
+    'package:List all package references of the project or solution'
+    'reference:List all project-to-project references of the project'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (package)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '(-v --verbosity)'{-v,--verbosity}'[Set the MSBuild verbosity level]: :_dotnet_verbosities' \
+            '(--deprecated --outdated --vulnerable)--outdated[Lists packages that have newer versions]' \
+            '(--deprecated --outdated --vulnerable)--deprecated[Lists packages that have been deprecated]' \
+            '(--deprecated --outdated --vulnerable)--vulnerable[Lists packages that have known vulnerabilities]' \
+            '*--framework[Chooses a framework to show its packages]:framework' \
+            '--include-transitive[Lists transitive and top-level packages]' \
+            '--include-prerelease[Consider packages with prerelease versions when searching for newer packages]' \
+            '--highest-patch[Consider only the packages with a matching major and minor version numbers when searching for newer packages]' \
+            '--highest-minor[Consider only the packages with a matching major version number when searching for new packages]' \
+            '--config[The path to the NuGet config file to use]: :_files' \
+            '--source[The NuGet sources to use when searching for newer packages]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '*:_dotnet_project_files' && ret=0
+          ;;
+        (reference)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '*:_dotnet_project_files' && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_dotnet_new] )) ||
+_dotnet_new() {
+  local ret=1
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :_dotnet_new_template' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (create|install|uninstall|update|search|list|details)
+          ;;
+        (*)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '(-o --output)'{-o,--output}'[The name for the output being created]:name' \
+            '--dry-run[Displays a summary of what would happen]' \
+            '--force[Forces content to be generated]' \
+            '--no-update-check[Disables checking for the template package updates]' \
+            '--project[The project that should be used for context evaluation]: :_dotnet_project_files' \
+            '(-v --verbosity)'{-v,--verbosity}'[Sets the verbosity level]:level:_dotnet_verbosities' \
+            '(-d --diagnostics)'{-d,--diagnostics}'[Enable diagnostic output]' \
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_dotnet_new_template] )) ||
+_dotnet_new_template() {
+  local -a templates=(
+    "apicontroller:API Controller"
+    "web:ASP.NET Core Empty"
+    "grpc:ASP.NET Core gRPC Service"
+    "webapi:ASP.NET Core Web API"
+    "webapiaot:ASP.NET Core Web API (native AOT)"
+    "mvc:ASP.NET Core Web App (Model-View-Controller)"
+    "razor:ASP.NET Core Web App (Razor Pages)"
+    "angular:ASP.NET Core with Angular"
+    "react:ASP.NET Core with React.js"
+    "blazorserver:Blazor Server App"
+    "blazorserver-empty:Blazor Server App Empty"
+    "blazor:Blazor Web App"
+    "blazorwasm-empty:Blazor WebAssembly App Empty"
+    "blazorwasm:Blazor WebAssembly Standalone App"
+    "classlib:Class Library"
+    "console:Console App"
+    "gitignore:dotnet gitignore file"
+    "tool-manifest:Dotnet local tool manifest file"
+    "editorconfig:EditorConfig file"
+    "globaljson:global.json file"
+    "buildprops:MSBuild Directory.Build.props file"
+    "buildtargets:MSBuild Directory.Build.targets file"
+    "mstest-playwright:MSTest Playwright Test Project"
+    "mstest:MSTest Test Project"
+    "mvccontroller:MVC Controller"
+    "viewimports:MVC ViewImports"
+    "viewstart:MVC ViewStart"
+    "nugetconfig:NuGet Config"
+    "nunit-test:NUnit 3 Test Item"
+    "nunit:NUnit 3 Test Project"
+    "nunit-playwright:NUnit Playwright Test Project"
+    "proto:Protocol Buffer File"
+    "razorclasslib:Razor Class Library"
+    "razorcomponent:Razor Component"
+    "page:Razor Page"
+    "view:Razor View"
+    "sln:Solution File"
+    "webconfig:Web Config"
+    "worker:Worker Service"
+    "xunit:xUnit Test Project"
+
+    # subcommand
+    "create:Instantiates a template with given short name"
+    "install:Install a template package"
+    "uninstall:Uninstall a template package"
+    "update:Update installed template package"
+    "search:Search for the templates on NuGet.org"
+    "list:List templates containing the specified template name"
+    "details:Provides the details for specified template package"
+  )
+
+  _describe -t 'templates' "templates" templates
+}
+
+(( $+functions[_dotnet_sln] )) ||
+_dotnet_sln() {
+  local ret=1
+
+  local -a commands=(
+    'add:Add one or more projects to a solution file'
+    'list:List all projects in a solution file'
+    'remove:Remove one or more projects from a solution file'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (add|remove)
+          _arguments \
+            '*:project:_dotnet_project_files' \
+            && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+
+# Utilities
+(( $+functions[_dotnet_oses] )) ||
+_dotnet_oses() {
+  local -a supported_os=('win' 'osx' 'linux' 'ios' 'android')
+  _values 'os' $supported_os
+}
+
+(( $+functions[_dotnet_arches] )) ||
+_dotnet_arches() {
+  local -a supported_arch=(x64 x86 arm64 arm)
+  _values 'arch' $supported_arch
+}
+
+(( $+functions[_dotnet_rids] )) ||
+_dotnet_rids() {
+  local -a supported_rid=(
+    win-x64 win-x86 win-arm64
+    linux-x64 linux-musl-x64 linux-musl-arm64 linux-arm linux-arm64 linux-bionic-arm64
+    osx-x64 osx-arm64
+    ios-arm64
+    android-arm64
+  )
+  _values 'rid' $supported_rid
+}
+
+(( $+functions[_dotnet_verbosities] )) ||
+_dotnet_verbosities() {
+  local -a level=(detailed diagnostic minimal normal quiet)
+  _values 'verbosities' $level
+}
+
+(( $+functions[_dotnet_project_files] )) ||
+_dotnet_project_files() {
+  _files -g "*.(csproj|fsproj|sln)"
+}
+
+_dotnet "$@"
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
