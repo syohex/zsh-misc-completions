@@ -22,6 +22,7 @@
 
 ## dotnet
 
+- [dotnet](https://github.com/dotnet/sdk)
 - [fantomas](https://github.com/fsprojects/fantomas)
 - [dotnet-install.sh](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-install-script)
 
