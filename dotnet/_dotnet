@@ -294,6 +294,7 @@ _dotnet_new() {
             '--force[Forces content to be generated]' \
             '--no-update-check[Disables checking for the template package updates]' \
             '--project[The project that should be used for context evaluation]: :_dotnet_project_files' \
+            '--language[Specify template language]:lang:("C#" "F#")' \
             '(-v --verbosity)'{-v,--verbosity}'[Sets the verbosity level]:level:_dotnet_verbosities' \
             '(-d --diagnostics)'{-d,--diagnostics}'[Enable diagnostic output]' \
           ;;
