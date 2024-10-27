@@ -137,6 +137,9 @@ _dotnet() {
         (sln)
           _dotnet_sln && ret=0
           ;;
+        (fsi)
+          _files -g "*.fsx"
+          ;;
       esac
     ;;
   esac
