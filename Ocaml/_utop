@@ -1,0 +1,72 @@
+#compdef utop
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2020 Shohei YOSHIDA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for utop 5.2.0 (https://github.com/ocaml-community/utop)
+#
+# ------------------------------------------------------------------------------
+
+_arguments \
+  "-absname[Show absolute filenames in error message]" \
+  "*-I[Add directory to the list of include directories]:dir:_files -/" \
+  "-init[Load file instead of default init file]:file:_files" \
+  "-labels[Use commuting label mode]" \
+  "-no-app-funct[Deactivate applicative functors]" \
+  "-noassert[Do not compile assertion checks]" \
+  "-nolabels[Ignore non-optional labels in types]" \
+  "-nostdlib[Do not add default directory to the list of include directories]" \
+  "*-ppx[Pipe abstract syntax trees through preprocessor command]:command" \
+  "-principal[Check principality of type inference]" \
+  "-short-paths[Shorten paths in types (the default)]" \
+  "-no-short-paths[Do not shorten paths in types]" \
+  "-rectypes[Allow arbitrary recursive types]" \
+  "-stdin[Read script from standard input]" \
+  "-strict-sequence[Left-hand part of a sequence must have type unit]" \
+  "-unsafe[Do not compile bounds checking on array and string access]" \
+  "(- *)-version[Print version and exit]" \
+  "-vnum[Print version number and exit]" \
+  "-w[Enable or disable warnings according to the list]:list" \
+  "-warn-error[Enable or disable error status for warnings according to the list]" \
+  "-warn-help[Show description of warning numbers]" \
+  "-emacs[Run in emacs mode]" \
+  "-hide-reserved[Hide identifiers starting with a '_' (the default)]" \
+  "-show-reserved[Show identifiers starting with a '_']" \
+  "-no-implicit-bindings[Don't add implicit bindings for expressions (the default)]" \
+  "-implicit-bindings[Add implicit bindings: <expr>;; -> let _0 = <expr>;;]" \
+  "-no-autoload[Disable autoloading of files in $OCAML_TOPLEVEL_PATH/autoload]" \
+  "*-require[Load this package]:package" \
+  "-dparsetree[Dump OCaml AST after rewriting]" \
+  "-dsource[Dump OCaml source after rewriting]" \
+  "(- *)"{-help,--help}"[Display this list of options]"
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
