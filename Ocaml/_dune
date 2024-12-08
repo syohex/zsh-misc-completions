@@ -1,0 +1,141 @@
+#compdef dune
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2024 Shohei YOSHIDA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for dune 3.16.0 (https://github.com/ocaml/dune)
+#  Support only basic sub-commands and options
+#
+# ------------------------------------------------------------------------------
+
+_dune() {
+  local context state state_descr line
+  typeset -A opt_args
+  local ret=1
+
+  _arguments -C \
+    '(- : *)--help=-[Show command line help]:format:_dune_help_format' \
+    '(- : *)--version[Display .NET SDK version in use]' \
+    '1: :_dune_commands' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (init)
+          _dune_init && ret=0
+          ;;
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_dune_init] )) ||
+_dune_init() {
+  local ret=1
+
+  local -a commands=(
+    'project:create a project'
+    'executable:create a binary executable'
+    'library:create a library'
+    'test:create a test harness'
+  )
+
+  _arguments -C \
+    '(- : *)'{-h,--help}'[Show command line help]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (project)
+          _arguments  \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--kind=[The kind of project to initialize]:kind:(executable library)' \
+            '1:name' \
+            '*: :_files' && ret=0
+          ;;
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_dune_commands] )) ||
+_dune_commands() {
+  local -a commands=(
+    "build:build the given targets or the default ones if none are given"
+    "cache:manage Dune's shared cache of build artifacts"
+    "clean:clean the project"
+    "coq:command group related to Coq"
+    "describe:describe the workspace"
+    "diagnostics:featch and return erros from the current build"
+    "exec:execute a command in a similar environment as if installation was performed"
+    "external-lib-deps:moved to dune describe external-lib-deps"
+    "format-dune-file:format dune files"
+    "help:additional Dune help"
+    "install:install packages defined in the workspace"
+    "installed-libraries:print out libraries installed on the system"
+    "monitor:connect to a Dune RPC server and monitor it"
+    "ocaml:command group related to Ocaml"
+    "ocaml-merlin:start a merlin configuration server"
+    "pkg:experimental package management"
+    "printenv:print the environment of a directory"
+    "promotion:control how changes are propagated back to source code"
+    "rpc:Done's RPC machanism"
+    "rules:dump rules"
+    "runtest:run tests"
+    "show:command group for showing information about the workspace"
+    "shutdown:cancel and shutdown any builds in the current workspace"
+    "subst:substitute watermarks in source files"
+    "top:print a list of toplevel directives for including directiroes and loading cma files"
+    "uninstall:uninstall packages defined in the workspace"
+    "upgrade:upgrade projects across major Dune versions"
+    "utop:load library in utop"
+  )
+
+  _describe -t 'commands' "commands" commands
+}
+
+(( $+functions[_dune_help_format] )) ||
+_dune_help_format() {
+  local -a formats=(auto pager groff plain)
+  _values 'format' $formats
+}
+
+_dune "$@"
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
