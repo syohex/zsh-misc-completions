@@ -38,7 +38,7 @@ _dune() {
 
   _arguments -C \
     '(- : *)--help=-[Show command line help]:format:_dune_help_format' \
-    '(- : *)--version[Display .NET SDK version in use]' \
+    '(- : *)--version[Display version]' \
     '1: :_dune_commands' \
     '*:: :->subcmd' && ret=0
 
