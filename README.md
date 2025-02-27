@@ -7,6 +7,7 @@
 - peco
 - [compiledb](https://github.com/nickdiego/compiledb)
 - [bear](https://github.com/rizsotto/Bear)
+- [cmigemo](https://github.com/koron/cmigemo)
 
 ## Perl
 
