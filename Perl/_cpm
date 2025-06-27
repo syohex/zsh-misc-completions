@@ -59,6 +59,7 @@ _cpm() {
             '(--static-install --no-static-install)--static-install[enable the static install]' \
             '(--static-install --no-static-install)--no-static-install[disable the static install]' \
             \*{-r,--resolver=}'[specify resolvers]:resolver' \
+            '--no-default-resolvers[Use default resolvers if you specify --resolver option]' \
             '--reinstall[reinstall the distribution even if you already have the latest version installed]' \
             '--dev[resolve TRIAL distributions too]' \
             '(--color --no-color)--color[turn on color output]' \
@@ -74,7 +75,9 @@ _cpm() {
             '--test-timeout=[specify test timeout second]:sec' \
             '(--show-progress --no-show-progress)--show-progress[show progress]' \
             '(--show-progress --no-show-progress)--no-show-progress[do not show progress]' \
+            '--cpmfile=[specify cpmfile path]: :_files' \
             '--cpanfile=[specify cpanfile path]: :_files' \
+            '--metafile=[specify META file path]: :_files' \
             '--snapshot=[specify cpanfile.snapshot path]: :_files' \
             '(- *)'{-V,--version}'[show version]' \
             '(- *)'{-h,--help}'[show help message]' \
