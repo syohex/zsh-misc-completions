@@ -39,7 +39,7 @@ _dotnet-install_channel() {
 }
 
 _arguments \
-  '--architecture[Architectures of the .NET binaries to install]: :(auto amd64 x64 x86 arm64 arm s390x)' \
+  '--architecture[Architectures of the .NET binaries to install]: :(auto amd64 x64 x86 arm64 arm s390x ppc64le loongarch64)' \
   '--azure-feed[Allows using a different storage to download SDK archives from(internal use only)]' \
   '--channel[Specifies the source channel for the installation]: :_dotnet-install_channel' \
   '--dry-run[The script will not perform the installation]' \
@@ -51,10 +51,12 @@ _arguments \
   '--no-path[The installation folder is not exported to the path for the current session]' \
   '--quality[Downloads the latest build of the specified quality in the channel]: :($channel)' \
   '--runtime[Installs just the shared runtime, not the entire SDK]: :(dotnet aspnetcore windowsdesktop)' \
-  '--os[Specifies the operating system]: :(osx linux linux-musl freebsd)' \
+  '--os[Specifies the operating system]: :(osx linux linux-musl freebsd rhel.6)' \
   '--shared-runtime[Installs just the shared runtime bits, not the entire SDK]' \
   '--skip-non-versioned-files[Skips installing non-versioned files]' \
   '--uncached-feed[allows using a different storage to download SDK archives from]' \
+  '--keep-zip[keep download file]' \
+  '--zip-path[specify the path where downloaded file is stored]' \
   '--verbose[Displays diagnostics information]' \
   '--version[Represents a specific build version]: :(latest)'
 
