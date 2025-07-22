@@ -56,7 +56,7 @@ _arguments \
   '--skip-non-versioned-files[Skips installing non-versioned files]' \
   '--uncached-feed[allows using a different storage to download SDK archives from]' \
   '--keep-zip[keep download file]' \
-  '--zip-path[specify the path where downloaded file is stored]' \
+  '--zip-path[specify the path where downloaded file is stored]:path:_files -g "*.zip"' \
   '--verbose[Displays diagnostics information]' \
   '--version[Represents a specific build version]: :(latest)'
 
