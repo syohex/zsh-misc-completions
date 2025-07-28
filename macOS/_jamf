@@ -31,16 +31,37 @@
 # ------------------------------------------------------------------------------
 
 _jamf() {
+  local context state state_descr line
+  typeset -A opt_args
   local ret=1
 
-  _arguments \
+  _arguments -C \
     '-displayJSSTraffic[Displays the total network traffic between the jamf binary and the JSS]' \
     '-randomDelaySeconds[Delays a random amount of time before starting]' \
     '-showPID[Prints the PID of the process]' \
     '-stopConsoleLogs[Stops logs from being sent to the console]' \
     '-verbose[Shows verbose events]' \
-    '1: :_jamf_commands' && ret=0
+    '1: :_jamf_commands' \
+    '*:: :->subcmd' && ret=0
 
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (help)
+          local -a verbs=(
+            about bind bless changePassword checkJSSConnection createAccount
+            createConf createSetupDone createStartupItem deleteAccount deletePrinter
+            deleteSetupDone displayMessage enablePermissions enroll fixByHostFiles
+            fixDocks flushCaches flushPolicyHistory getARDFields getComputerName
+            help launchSelfService listUsers log manage mapPrinter modifyDock
+            mount policy reboot recon removeFramework removeSWUSettings renewDeviceCert
+            resetPassword runSoftwareUpdate setARDFields setComputerName setHomePage
+            setOFP startSSH startup uninstall unmountServer updatePrebindings version
+          )
+          _values 'verb' $verbs
+          ;;
+      esac
+  esac
   return ret
 }
 
