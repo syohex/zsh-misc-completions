@@ -26,7 +26,7 @@
 # Description
 # -----------
 #
-#  Completion script for bear 3.0.20 (https://github.com/rizsotto/Bear)
+#  Completion script for bear 3.1.15 (https://github.com/rizsotto/Bear)
 #
 # ------------------------------------------------------------------------------
 
@@ -40,8 +40,7 @@ _arguments -C \
   '--config[path of the config file]: :_files' \
   '--force-preload[force to use library preload]' \
   '--force-wrapper[force to use compiler wrappers]' \
-  '--citnames[path to the citnames executable]: :_files' \
-  '--interceptor[path to the intercept executable]: :_files' \
+  '--bear-path[path to the bear executable]: :_files' \
   '--library[path to preload library]: :_files' \
   '--wrapper[path to the wrapper executable]: :_files' \
   '--wrapper-dir[path to the wrapper directory]: :_files -/' \
