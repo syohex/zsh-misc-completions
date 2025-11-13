@@ -26,7 +26,7 @@
 # Description
 # -----------
 #
-#  Completion script for dotnet 8.0.200 (https://github.com/dotnet/sdk)
+#  Completion script for dotnet 10.0.100 (https://github.com/dotnet/sdk)
 #
 # ------------------------------------------------------------------------------
 
@@ -90,6 +90,9 @@ _dotnet() {
         (new)
           _dotnet_new && ret=0
           ;;
+        (package)
+          _dotnet_package && ret=0
+          ;;
         (publish)
           _arguments \
             '(- *)'{-h,--help}'[Show command line help]' \
@@ -113,6 +116,9 @@ _dotnet() {
             '--disable-build-servers[Force the command to ignore any persistent build server]' \
             '*: :_dotnet_project_files' && ret=0
           ;;
+        (reference)
+          _dotnet_reference && ret=0
+          ;;
         (run)
           _arguments \
             '(- *)'{-h,--help}'[Show command line help]' \
@@ -134,7 +140,7 @@ _dotnet() {
             '--disable-build-servers[Force the command to ignore any persistent build server]' \
             '*: :_dotnet_project_files' && ret=0
           ;;
-        (sln)
+        (sln|solution)
           _dotnet_sln && ret=0
           ;;
         (fsi)
@@ -161,12 +167,15 @@ _dotnet_commands() {
     "new:Create a new .NET project or file"
     "nuget:Provides additional NuGet commands"
     "pack:Create a NuGet package"
+    "package:Search for add, remove or list PackageReferences for a .NET project"
     "publish:Publish a .NET project for deployment"
+    "reference:Restore dependencies specified in a .NET project"
     "remove:Remove a package or reference from a .NET project"
     "restore:Restore dependencies specified in a .NET project"
     "run:Build and run a .NET project output"
     "sdk:Manage .NET SDK installation"
     "sln:Modify Visual Studio solution files"
+    "solution:Modify Visual Studio solution files"
     "store:Store the specified assemblies in the runtime package store"
     "test:Run unit tests using the test runner specified in a .NET project"
     "tool:Install or manage tools that extend the .NET experience"
@@ -274,6 +283,145 @@ _dotnet_list() {
 
   return ret
 }
+
+(( $+functions[_dotnet_package] )) ||
+_dotnet_package() {
+  local ret=1
+
+  local -a commands=(
+    'search:Searches one or more package sources for packages that match a search term'
+    'add:Add a NuGet package reference to the project'
+    'list:List all package references of the project or solution'
+    'remove:Remove a NuGet package reference from the project'
+    'update:Update referenced packages in a project or solution'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (search)
+          _arguments \
+            '(- *)'{-h,--help}'[Show help]' \
+            '*--search[The package source to search]:source' \
+            '--take[Number of results to return]:number' \
+            '--skip[Number of results to skip]:number' \
+            '--exact-match[Require that the search term exactly match the name of the package]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--prerelease[Include prerelease packages]' \
+            '--configfile[NuGet configuration file]:config:_files' \
+            '--format[Format the output accordingly]:format:(table json)' \
+            '--verbosity[Verbosity type]:type:(normal minimal detailed)' \
+            && ret=0
+          ;;
+        (add)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '(-v --version)'{-v,--version}'[The version of the package to add]:version' \
+            \*{-f,--framework}'[Add the reference only when targeting a specific framework]:framework' \
+            '(-n --no-restore)'{-n,--no-restore}'[Add the reference without performing restore preview and compatibility check]' \
+            '(-s --source)'{-s,--source}'[The NuGet package source to use during the restore]: :_files' \
+            '--package-directory[The directory to restore packages to]: :_files -/' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--prerelease[Allow prerelease packages to be installed]' \
+            '--project[The project file to operate on]:project_file:_dotnet_project_files' \
+            '--file[The file-based app to operate on]:file:_files' \
+            && ret=0
+          ;;
+        (list)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--verbosity[Verbosity level]:type:(quiet minimal normal detailed diagnostic)' \
+            '--outdated[Lists packages that have newer versions]' \
+            '--deprecated[Lists packages that have been deprecated]' \
+            '--vulnerable[Lists packages that have known vulnerabilities]' \
+            \*{-f,--framework}'[Choose a framework to show its packages]:framework' \
+            '--include-transitive[Lists transitive and top-level packages]' \
+            '--include-prerelease[Consider packages with prerelease version when searching for new packages]' \
+            '--highest-patch[Consider only the packages with a matching major and minor version numbers when searching for newer packages]' \
+            '--highest-minor[Consider only the packages with a matching major version number when searching for new packages]' \
+            '--config[The path to the NuGet config file to use]: :_files' \
+            '--source[The NuGet sources to use when searching for newer packages]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--format[Format the output accordingly]:format:(table json)' \
+            '--output-version[Specifies the version of machine-readable output]:version' \
+            '--no-restore[Do not restore before running the command]' \
+            '--project[The project file to operate on]:project_file:_dotnet_project_files' \
+            && ret=0
+          ;;
+        (remove)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--project[The project file to operate on]:project_file:_dotnet_project_files' \
+            '--file[The file-based app to operate on]:file:_files' \
+            && ret=0
+          ;;
+        (update)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--vulnerable[Upgrade packages that have known vulnerabilities]' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--verbosity[Verbosity level]:type:(quiet minimal normal detailed diagnostic)' \
+            && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_dotnet_reference] )) ||
+_dotnet_reference() {
+  local ret=1
+
+  local -a commands=(
+    'add:Add a project-to-project to the project'
+    'list:List all project-to-project references of the project'
+    'remove:Remove a project-to-project reference from the project'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (add)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            \*{-f,--framework}'[Add the reference only when targeting a specified framework]:framework' \
+            '--interactive[Allows the command to stop and wait for user input or action]' \
+            '--project[The project file to operate on]:project_file:_dotnet_project_files' \
+            && ret=0
+          ;;
+        (list)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            '--project[The project file to operate on]:project_file:_dotnet_project_files' \
+            && ret=0
+          ;;
+        (remove)
+          _arguments \
+            '(- *)'{-h,--help}'[Show command line help]' \
+            \*{-f,--framework}'[Remove the reference only when targeting a specified framework]:framework' \
+            '--project[The project file to operate on]:project_file:_dotnet_project_files' \
+            && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
 
 (( $+functions[_dotnet_new] )) ||
 _dotnet_new() {
@@ -401,7 +549,6 @@ _dotnet_sln() {
   return ret
 }
 
-
 # Utilities
 (( $+functions[_dotnet_oses] )) ||
 _dotnet_oses() {
@@ -435,7 +582,7 @@ _dotnet_verbosities() {
 
 (( $+functions[_dotnet_project_files] )) ||
 _dotnet_project_files() {
-  _files -g "*.(csproj|fsproj|sln)"
+  _files -g "*.(csproj|fsproj|sln|slnx)"
 }
 
 _dotnet "$@"
