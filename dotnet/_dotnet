@@ -143,6 +143,38 @@ _dotnet() {
         (sln|solution)
           _dotnet_sln && ret=0
           ;;
+        (test)
+          _arguments \
+            '(-s --settings)'{-s,--settings}'[Settings file]:file:_files' \
+            '(- *)'{-t,--list-tests}'[List the tests instead of running the tests]' \
+            \*{-e,--environment}'[set the value of an environment variable]:key_val' \
+            '--filter[Run tests that match the given expression]' \
+            '--test-adapter-path[Path to the custom adapters]:file:_files' \
+            '(-o --output)'{-o,--output}'[Output directory to place built artifacts in]:dir:_files -/' \
+            '--artifacts-path[The artifacts path]:dir:_files -/' \
+            '(-d --diag)'{-d,--diag}'[Enable verbose logging to the specified file]:file:_files' \
+            '--no-build[Do not build the project before testing]' \
+            '--results-directory[Directory where the test results will be placed]:dir:_files -/' \
+            '--collect[Friendly name of the data collector]:name' \
+            '--blame[Run the tests in blame mode]' \
+            '--blame-crash[Run the tests in blame mode and collect a crash dump]' \
+            '--blame-crash-dump-type[Type of crash dump]:type:(full mini)' \
+            '--blame-crash-collect-always[Enable collection crash dump on expected too]' \
+            '--blame-hang[Run the tests in blame mode and enable collecting hang dump]' \
+            '--blame-hang-dump-type[Type of crash dump collected]:type:(full mini none)' \
+            '--blame-hang-timeout[Per-test timeout after hang dump is triggered]:timespan' \
+            '--nologo[Run tests without displaying Microsoft Testplatform banner]' \
+            '(-c --configuration)'{-c,--configuration}'[Configuration to use for running tests]:conf:(Debug Release Develop)' \
+            '(-f --framework)'{-f,--framework}'[Target framework to run tests for]:framework' \
+            '(-r --runtime)'{-r,--runtime}'[Target runtime to run tests for]:runtime' \
+            '--no-restore[Do not restore the project before building]' \
+            '--interactive[Allow the command to stop and wait for user input or action]' \
+            '(-v --verbosity)'{-v,--verbosity}'[Set the MSBuild verbosity level]:level:_dotnet_verbosities' \
+            '(-a --arch)'{-a,--arch}'[Target architecture]:arch:_dotnet_arches' \
+            '--os[Target operating system]:os:_dotnet_oses' \
+            '--disable-build-servers[Force the command to ignore any persistent build servers]' \
+            '*::arg:_files'
+          ;;
         (fsi)
           _files -g "*.fsx"
           ;;
