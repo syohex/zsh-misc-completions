@@ -26,19 +26,19 @@
 # Description
 # -----------
 #
-#  Completion script for fantoms 5.1.4 (https://github.com/fsprojects/fantomas)
+#  Completion script for fantoms 7.0.3 (https://github.com/fsprojects/fantomas)
 #
 # ------------------------------------------------------------------------------
 
 _arguments \
   '(- *)--help[Display help message]' \
-  '(- *)'{-v,--version}'[Display the version of Fantomas]' \
-  '(--recurse -r)'{-r,--recurse}'[Process the input folder recursively]' \
+  '(- *)--version[Display the version of Fantomas]' \
   '--force[Print the output even if it is not valid F# code]' \
   '--profile[Print performance profiling information]' \
-  '--out[Give a valid path for files/folders]: :_files' \
+  '--out[Give a valid path for files/folders]:file_or_dir :_files' \
   "--check[Don't format files, just check if they have changed]" \
   '--daemon[Daemon mode, launches an LSP-like server to can be used by editor tooling]' \
+  '(-v --verbosity)'{-v,--verbosity}'[Set the verbosity level]:level:(normal detailed)' \
   '*: :_files'
 
 # Local Variables:
