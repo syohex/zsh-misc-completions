@@ -391,6 +391,7 @@ _dotnet_package() {
             '--interactive[Allows the command to stop and wait for user input or action]' \
             '--project[The project file to operate on]:project_file:_dotnet_project_files' \
             '--file[The file-based app to operate on]:file:_files' \
+            '*::package:_dotnet_package_installed' \
             && ret=0
           ;;
         (update)
@@ -399,6 +400,7 @@ _dotnet_package() {
             '--vulnerable[Upgrade packages that have known vulnerabilities]' \
             '--interactive[Allows the command to stop and wait for user input or action]' \
             '--verbosity[Verbosity level]:type:(quiet minimal normal detailed diagnostic)' \
+            '*::package:_dotnet_package_installed' \
             && ret=0
           ;;
       esac
@@ -406,6 +408,12 @@ _dotnet_package() {
   esac
 
   return ret
+}
+
+(( $+functions[_dotnet_package_installed] )) ||
+_dotnet_package_installed() {
+  local -a packages=($(dotnet package list | perl -wln -e 'm{> (\S+)} and print $1'))
+  _values package $packages
 }
 
 (( $+functions[_dotnet_reference] )) ||
