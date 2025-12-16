@@ -1,0 +1,1063 @@
+#compdef rabbitmqctl rabbitmq-diagnostics rabbitmq-plugins rabbitmq-queues rabbitmq-streams rabbitmq-upgrade rabbitmqadmin rabbitmq-collect-env
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2025 Shohei YOSHIDA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for rabbitmq 4.2 (https://www.rabbitmq.com/)
+#
+# ------------------------------------------------------------------------------
+
+_rabbitmq() {
+  local ret=1
+
+  local -a rabbitmq_common_options=(
+    '(-n --node)'{-n,--node}'[node name]:node'
+    '(-q --quiet -s --silent)'{-q,--quiet}'[quiet output mode]'
+    '(-q --quiet -s --silent)'{-s,--silent}'[silent output mode]'
+    '(-t --timeout)'{-t,--timeout}'[operation timeout in seconds]:seconds'
+    '(-l --longnames)'{-l,--longnames}'[use long (FQDN) node names]'
+    '--erlang-cookie[shared secret to use to authenticate to the target node]:cookie'
+  )
+
+  case $service in
+    (rabbitmqctl)
+      _rabbitmq_rabbitmqctr && ret=0
+    ;;
+    (rabbitmq-diagnostics)
+      _rabbitmq_diagnostics && ret=0
+      ;;
+    (rabbitmq-plugins)
+      _rabbitmq_plugins && ret=0
+      ;;
+    (rabbitmq-queues)
+      _rabbitmq_queues && ret=0
+      ;;
+    (rabbitmq-streams)
+      _rabbitmq_streams && ret=0
+      ;;
+    (rabbitmq-upgrade)
+      _arguments \
+        $rabbitmq_common_options[@] \
+        '1: :_rabbitmq_upgrade_commands' \
+        && ret=0
+      ;;
+    (rabbitmqadmin)
+      _rabbitmq_rabbitmqadmin && ret=0
+      ;;
+    (rabbitmq-collect-env)
+      _arguments \
+        '(- *)'{-h,--help}'[print usage statement]' \
+        '(-v -vv -vvv)'{-v,--verbose}'[print verbose message to stdout]' \
+        '(-v -vv -vvv)-vv[print more verbose message to stdout]' \
+        '(-v -vv -vvv)-vvv[print most verbose message to stdout]' \
+        && ret=0
+    ;;
+  esac
+
+  return ret
+}
+
+_rabbitmq_rabbitmqctr() {
+  _arguments -C \
+    $rabbitmq_common_options[@] \
+    '--no-table-headers[do not output headers for tabular data]' \
+    '--dry-run[do not run the command, only print informational message]' \
+    '1: :_rabbitmq_rabbitmqctr_commands' \
+    '*:: :->arg' \
+    && ret=0
+
+  case $state in
+    (arg)
+      # general options
+      local -a options=(
+        '(- *)'{-?,--help}'[display command help]'
+        '(-n --node)'{-n,--node}'[node to connect]:node'
+        '(-l --longnames)'{-l,--longnames}'[use long host names]'
+        '(-t --timeout)'{-t,--timeout}'[timeout seconds]:seconds'
+        '(-q --quiet -s --silent)'{-q,--quiet}'[supress information messages]'
+        '(-q --quiet -s --silent)'{-s,--silent}'[supress information messages and table header row]'
+        '(-p --vhost)'{-p,--vhost}'[for commands that are scoped to a virtual host to use]'
+        '--formatter[formatter type]:type:(json pretty_table table csv erlang)'
+      )
+
+      case $words[1] in
+        (help)
+          _arguments \
+            '(- *)'{-l,--list-commands}'[list command usages]' \
+            '1:command:_rabbitmq_rabbitmqctr_commands' \
+            && ret=0
+
+          return ret
+          ;;
+        (shutdown)
+          options+=(
+            '(--wait --no-wait)--wait[wait for target node to terminate]'
+            '(--wait --no-wait)--no-wait[not wait for target node to terminate]'
+          )
+          ;;
+        (stop)
+          options+=(
+            '--idempotent[return success if target node is not running]'
+            '1:pid_file:_files'
+          )
+          ;;
+        (wait)
+          options+=(
+            '(-P --pid)'{-P,--pid}'[operating system PID to monitor]:pid:_pids'
+            '1:pid_file:_files'
+          )
+          ;;
+        (change_cluster_node_type)
+          options+=(
+            '1:type:(disc ram)'
+          )
+          ;;
+        (forget_cluster_node)
+          options+=(
+            '--offline[try to update cluster membership state directly]'
+          )
+          ;;
+        (join_cluster)
+          options+=(
+            '(--disc --ram)--disk[new node should be a disk one. Highly recommended, used by default]'
+            '(--disc --ram)--ram[new node should be a RAM one. Not recommended]'
+          )
+          ;;
+        (add_user)
+          options+=(
+            '--pre-hashed-password[use to pass in a password hash instead of a clear text password]'
+          )
+          ;;
+        (list_vhosts)
+          local -a columns=(
+            cluster_state default_queue_type description metadata name protected_from_deletion tags tracing
+          )
+          options+=('*:column:(($columns))')
+          ;;
+        (list_bindings)
+          local -a columns=(arguments destination_kind destination_name routing_key source_kind source_name)
+          options+=('*:column:(($columns))')
+          ;;
+        (list_channels)
+          local -a columns=(
+            acks_uncommitted confirm connection consumer_count messages_unacknowledged messages_uncommitted
+            messages_unconfirmed name number pid prefetch_count transactional user vhost
+          )
+          options+=('*:column:(($columns))')
+          ;;
+        (list_connections)
+          local -a columns=(
+            auth_mechanism channel_max channels client_properties connected_at container_id frame_max
+            host name peer_cert_issuer peer_cert_subject peer_cert_validity peer_host peer_port
+            pid port protocol recv_cnt recv_oct send_cnt send_oct send_pend ssl ssl_cipher
+            ssl_hash ssl_key_exchange ssl_protocol state timeout user vhost
+          )
+          options+=('*:column:(($columns))')
+          ;;
+        (list_consumers)
+          local -a columns=(
+            ack_required active activity_status arguments channel_pid consumer_tag prefetch_count queue_name
+          )
+          options+=('*:column:(($columns))')
+          ;;
+        (list_exchanges)
+          local -a columns=(arguments auto_delete durable internal name policy type)
+          options+=('*:column:(($columns))')
+          ;;
+        (list_queues)
+          local -a columns=(
+            arguments auto_delete consumer_capacity consumer_utilisation consumers disk_reads disk_writes
+            durable effective_policy_definition exclusive exclusive_consumer_pid exclusive_consumer_tag
+            head_message_timestamp leader members memory message_bytes message_bytes_persistent
+            message_bytes_ram message_bytes_ready message_bytes_unacknowledged messages messages_persistent
+            messages_ram messages_ready messages_ready_ram messages_unacknowledged messages_unacknowledged_ram
+            name online operator_policy owner_pid pid policy state type
+          )
+          options+=(
+            '(--offline --online --local)--offline[list only those durable queues that not currently available]'
+            '(--offline --online --local)--online[list queues that are currently available]'
+            '(--offline --online --local)--local[list only those queues located on the current node]'
+            '*:column:(($columns))'
+          )
+          ;;
+        (list_queues)
+          local -a columns=(arguments auto_delete durable name pid)
+          options+=(
+            '--local[only return queues hosted on the target node]'
+            '--queue-timeout[per-queue timeout to use when checking for responsiveness]:msecs'
+            '*:column:(($columns))'
+          )
+          ;;
+        (schema_info)
+          local -a columns=(
+            access_mode active_replicas all_nodes arity attributes checkpoints commit_work cookie cstruct
+            disc_copies disc_only_copies external_copies frag_properties index index_info load_by_force
+            load_node load_order load_reason local_content majority master_nodes memory name ram_copies
+            record_name record_validation size snmp storage_properties storage_type subscribers type
+            user_properties version where_to_commit where_to_read where_to_wlock where_to_write wild_pattern
+          )
+          options+=('*:column:(($columns))')
+          ;;
+        (status)
+          options+=(
+            '--unit[byte multiple to use]:unit:(bytes mb mib gb gib)'
+          )
+          ;;
+        (set_operator_policy|set_policy)
+          options+=(
+            '--priority[policy priority]:priority'
+            '--apply-to[policy should only apply to queues, exchanges or all entities]:type:(queues exchanges all)'
+          )
+          ;;
+        (add_vhost)
+          options+=(
+            '--description[virtual host description]:description'
+            '--tags[comma-separated list of tags]:tags'
+            '--default-queue-type[queue type to use]:type:(quorum classic stream)'
+          )
+          ;;
+        (list_vhost_limits)
+          options+=(
+            '--global[list global limits]'
+          )
+          ;;
+        (decode|encode)
+          options+=(
+            '--cipher[cipher suite to use]:cipher'
+            '--hash[hashing function to use]:hash'
+            '--iterations[number of iteration to apply]:iterations'
+          )
+          ;;
+        (set_disk_free_limit)
+          options+=('1:arg:(mem_relative)')
+          ;;
+        (set_log_level)
+          options+=('1:level:(debug info warning error critical none)')
+          ;;
+        (set_vm_memory_high_watermark)
+          options+=('1:arg:(absolute)')
+          ;;
+        (enable_feature_flag)
+          options+=(
+            '--opt-in[required to enable certain feature flags]'
+            '1:flag:(all)'
+          )
+          ;;
+        (list_feature_flags)
+          local -a columns=(desc doc_url name provided_by stability state)
+          options+=('*:column:(($columns))')
+          ;;
+        (close_all_connections)
+          options+=(
+            '--global[consider connections across all virtual hosts]'
+            '--limit[close up to this many connections]:number'
+            '--per-connection-delay[inject a delay between closures]:msecs'
+          )
+          ;;
+        (delete_queue)
+          options+=(
+            '(-e --if-empty)'{-e,--if-empty}'[delete the queue if it is empty]'
+            '(-u --if-unused)'{-u,--if-unused}'[delete the queue only if it has no consumers]'
+            '--force[delete the queue even if it is protected]'
+          )
+          ;;
+      esac
+
+      _arguments $options[@] && ret=0
+      ;;
+  esac
+}
+
+_rabbitmq_rabbitmqctr_commands() {
+  local -a commands=(
+    'help:print usage for all available commands'
+    'version:display CLI tools version'
+    # nodes
+    'await_startup:wait for the RabbitMQ application to start on the target node'
+    'reset:return a RabbitMQ node to its virgin state'
+    'rotate_logs:instruct the RabbitMQ node to perform internal log rotation'
+    'shutdown:shut down the node both RabbitMQ and its runtime'
+    'start_app:start the RabbitMQ application'
+    'stop:stop the Erlang node on which RabbitMQ is running'
+    'stop_app:stop the RabbitMQ application'
+    'wait:wait for the RabbitMQ application to start'
+    # cluster management
+    'await_online_nodes:wait for count nodes to join the cluster'
+    'change_cluster_node_type:change the type of the cluster node'
+    'cluster_status:display all the nodes in the cluster grouped by node type'
+    'force_boot:ensure that the node will start next time'
+    'force_reset:forcefully return a RabbitMQ node to its virgin state'
+    'forget_cluster_node:enable node removal from an offline node'
+    'join_cluster:instruct the node to become a member of the cluster that the specified node is in'
+    # user management
+    'add_user:create the user'
+    'authenticate_user:authenticate the user'
+    'change_password:change user password'
+    'clear_password:clear the user password'
+    'hash_password:hash the plain text password'
+    'delete_user:delete the user'
+    'list_users:list users'
+    'set_user_tags:set the tags to the user'
+    # access control
+    'clear_permissions:clear the permissions'
+    'clear_topic_permissions:clear user topic permissions'
+    'list_permissions:list permissions in a virtual host'
+    'list_topic_permissions:list topic permissions in a virtual host'
+    'list_user_permissions:list user permissions'
+    'list_user_topic_permissions:list user topic permissions'
+    'list_vhosts:list virtual hosts'
+    'set_permissions:set user permissions'
+    'set_permissions_globally:set user permissions in all vhosts'
+    'set_topic_permissions:set user topic permissions'
+    # monitoring, observability and health checks
+    'environment:display the name and value of each variable in the application environment'
+    'list_bindings:return binding details'
+    'list_channels:return information on all current channels'
+    'list_ciphers:list cipher suites supported by encoding commands'
+    'list_connections:return TCP/IP connection statistics'
+    "list_consumers:list consumers, i.e, subscriptions to a queue's message stream"
+    'list_exchanges:return exchange details'
+    'list_hashes:list hash functions supported by encoding commands'
+    'list_queues:return queue details'
+    'list_unresponsive_queues:list unresponsive queues'
+    'ping:check that the node OS process is up'
+    'report:generate a server status report containing a concatenation of all server status information'
+    'schema_info:list schema database tables and their properties'
+    'status:display broker status information'
+    # runtime parameters and policies
+    'clear_global_parameter:clear a global runtime parameter'
+    'clear_parameter:clear a parameter'
+    'list_global_parameters:list all global runtime parameters'
+    'list_parameters:list all parameters for a virtual host'
+    'set_global_parameter:set a global runtime parameter'
+    'set_parameter:set a parameter'
+    'list_policies:list all policies for a virtual host'
+    'set_operator_policy:set an operator policy'
+    'set_policy:set a policy'
+    'clear_policy:clear a policy'
+    'clear_operator_policy:clear an operator policy'
+    'list_operator_policies:list operator policy overrides for a virtual host'
+    # virtual hosts
+    'add_vhost:create a virtual host'
+    'clear_vhost_limits:clear virtual host limits'
+    'delete_vhost:delete a virtual host'
+    'list_vhost_limits:display configured virtual host limits'
+    'restart_vhost:restart a failed vhost data stores and queues'
+    'set_vhost_limits:set virtual host limits'
+    'set_user_limits:set user limits'
+    'clear_user_limits:clear user limits'
+    'trace_off:stop tracing'
+    'trace_on:start tracing'
+    # configuration
+    'decode:value to decrypt and passphrase'
+    'encode:value to encrypt and passphrase'
+    'set_cluster_name:set the cluster name'
+    'set_disk_free_limit:set disk free limit'
+    'set_log_level:set log level in the running node'
+    'set_vm_memory_high_watermark:set vm memory high watermark'
+    # feature flags
+    'enable_feature_flag:enable a feature flag on the target node'
+    'list_feature_flags:list feature flags'
+    # connection operations
+    'close_all_connections:close all connections to the node'
+    'close_connection:close the connection associated with the Erlang process id'
+    # misc
+    'eval:evaluate an Erlang expression on the target node'
+    # queue operations
+    'delete_queue:delete a queue'
+    'purge_queue:purge a queue'
+  )
+
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq_diagnostics() {
+  local ret=1
+
+  _arguments -C \
+    $rabbitmq_common_options[@] \
+    '1: :_rabbitmq_diagnostics_commands' \
+    '*:: :->arg' \
+    && ret=0
+
+  case $state in
+    (arg)
+      # general options
+      local -a options=(
+        '(- *)'{-?,--help}'[display command help]'
+        '(-n --node)'{-n,--node}'[node to connect]:node'
+        '(-l --longnames)'{-l,--longnames}'[use long host names]'
+        '(-t --timeout)'{-t,--timeout}'[timeout seconds]:seconds'
+        '(-q --quiet -s --silent)'{-q,--quiet}'[supress information messages]'
+        '(-q --quiet -s --silent)'{-s,--silent}'[supress information messages and table header row]'
+        '(-p --vhost)'{-p,--vhost}'[for commands that are scoped to a virtual host to use]'
+        '--formatter[formatter type]:type:(json pretty_table table csv erlang)'
+      )
+      case $words[1] in
+        (help)
+          _arguments \
+            '(- *)'{-l,--list-commands}'[list command usages]' \
+            '1:command:_rabbitmq_diagnostics_commands' \
+            && ret=0
+
+          return ret
+          ;;
+        (list_permissions|list_topic_permissions|list_user_permissions|list_user_topic_permissions|list_vhosts|list_global_parameters|list_parameters|list_operator_policies|list_policies)
+          options+=(
+            '--no-table-headers[not display table headers]'
+          )
+          ;;
+        (check_certificate_expiration)
+          options+=(
+            '--unit[time unit(default: weeks)]:unit:(days weeks months years)'
+            '--within[period of time to check(default: four weeks)]:period'
+          )
+          ;;
+        (check_port_connectivity)
+          options+=(
+            '--address[target address]:address'
+          )
+          ;;
+        (cipher_suites)
+          options+=(
+            '--format[output format to use]:format:(openssl erlang map)'
+            '--all[list all available suites]'
+          )
+          ;;
+        (consume_event_stream)
+          options+=(
+            '(-d --duration)'{-d,--duration}'[duration in seconds to stream log(default: infinity)]:seconds'
+            '--pattern[regular expression to pick events]:pattern'
+          )
+          ;;
+        (erlang_version)
+          options+(
+            '--details[display addition Erlang/OTP system information]'
+            '--offline[display local Erlang/OTP version]'
+          )
+          ;;
+        (list_bindings)
+          local -a columns=(destination_kind destination_name routing_key source_kind source_name)
+          options+=('*::column:(($columns))')
+          ;;
+        (list_channels)
+          local -a columns=(
+            acks_uncommitted confirm connection consumer_count messages_unacknowledged
+            messages_uncommitted messages_unconfirmed name number pid prefetch_count
+            transactional, user, vhost
+          )
+          options+=('*::column:(($columns))')
+          ;;
+        (list_connections)
+          local -a columns=(
+            auth_mechanism channel_max channels client_properties connected_at container_id
+            frame_max host name peer_cert_issuer peer_cert_subject peer_cert_validity peer_host
+            peer_port pid port protocol recv_cnt recv_oct send_cnt send_oct send_pend ssl ssl_cipher
+            ssl_hash, ssl_key_exchange, ssl_protocol, state, timeout, user, vhost
+          )
+          options+=('*::column:(($columns))')
+          ;;
+        (list_consumers)
+          local -a columns=(
+            ack_required active activity_status arguments channel_pid consumer_tag
+            prefetch_count queue_name
+          )
+          options+=('*::column:(($columns))')
+          ;;
+        (list_exchanges)
+          local -a columns=(auto_delete durable internal name policy type)
+          options+=('*::column:(($columns))')
+          ;;
+        (list_queues)
+          local -a columns=(
+            auto_delete consumer_capacity consumer_utilisation consumers disk_reads disk_writes
+            durable effective_policy_definition exclusive exclusive_consumer_pid exclusive_consumer_tag
+            head_message_timestamp leader members memory message_bytes message_bytes_persistent
+            message_bytes_ram message_bytes_ready message_bytes_unacknowledged messages
+            messages_persistent messages_ram messages_ready messages_ready_ram messages_unacknowledged
+            messages_unacknowledged_ram name online operator_policy owner_pid pid policy state type
+          )
+          options+=(
+            '--online[list only queues on online nodes]'
+            '--offline[list only queues on offline nodes]'
+            '--local[only return queues hosted on the target node]'
+            '*::column:(($columns))'
+          )
+          ;;
+        (list_unresponsive_queues)
+          local -a columns=(auto_delete durable name pid)
+          options+=(
+            '--local[only return queues hosted on the target node]'
+            '--queue-timeout[per-queue timeout to use when checking for responsiveness]:milliseconds'
+            '*::column:(($columns))'
+          )
+          ;;
+        (log_tail)
+          options+=(
+            '--number[number of lines to print]:number'
+          )
+          ;;
+        (log_tail_stream)
+          options+=(
+            '(-d --duration)'{-d,--duration}'[duration in seconds to stream log(default: infinity)]:seconds'
+          )
+          ;;
+        (memory_breakdown)
+          options+=(
+            '--unit[byte multiple(bytes, megabytes, gigabytes) to use]:unit:(bytes mb gb)'
+          )
+          ;;
+        (observer)
+          options+=(
+            '--interval[update interval to use, in seconds]:seconds'
+          )
+          ;;
+        (runtime_thread_stats)
+          options+=(
+            '--sample-interval[sampling interval to use in seconds]:seconds'
+          )
+          ;;
+        (schema_info)
+          local -a columns=(
+            access_mode active_replicas all_nodes arity attributes checkpoints commit_work
+            cookie cstruct disc_copies disc_only_copies external_copies frag_properties index
+            index_info load_by_force load_node load_order load_reason local_content majority
+            master_nodes memory name ram_copies record_name record_validation size snmp
+            storage_properties storage_type subscribers type user_properties version where_to_commit
+            where_to_read, where_to_wlock, where_to_write, wild_pattern
+          )
+          options+=(
+            '--no-table-headers[not display table headers]'
+            '*::column:(($columns))'
+          )
+          ;;
+        (status)
+          options+=(
+            '--unit[byte multiple(bytes, megabytes, gigabytes )]:unit:(bytes mb mib gb gib)'
+          )
+          ;;
+        (list_vhost_limits)
+          options+=(
+            '--global[list global limits]'
+            '--no-table-headers[not display table headers]'
+          )
+          ;;
+        (log_location)
+          options+=(
+            '(-a --all)'{-a,--all}'[all log locations]'
+          )
+          ;;
+        (list_feature_flags)
+          local -a columns=(desc doc_url name provided_by stability state)
+          options+=('*::column:(($columns))')
+          ;;
+      esac
+
+      _arguments $options[@] && ret=0
+      ;;
+  esac
+
+  return ret
+}
+
+_rabbitmq_diagnostics_commands() {
+  local -a commands=(
+    # help
+    'help:print usage for all available command'
+    'version:display CLI tools version'
+    # nodes
+    'wait:wait for RabbitMQ node startup'
+    # cluster
+    'cluster_status:display all nodes in the cluster grouped by node type'
+    # users
+    'list_users:list user names and tags'
+    # access control
+    'list_permissions:list user permissions in a virtual host'
+    'list_topic_permissions:list topic permissions in a virtual host'
+    'list_user_permissions:list permissions of a user across all virtual hosts'
+    'list_user_topic_permissions:list user topic permissions'
+    'list_vhosts:list virtual hosts'
+    # monitoring
+    'alarms:list resource alarms'
+    'certificates:display the node certificates for every listener on target node'
+    'check_alarms:health check if there are alarms in effect on any of the cluster nodes'
+    'check_certificate_expiration:check the expiration date on the certificates'
+    'check_local_alarms:health check for local alarms'
+    'check_port_connectivity:health check for port connectivity'
+    'check_port_listener:health check if the node is listening on the given node'
+    'check_protocol_listener:health check if the node has a listener for the given protocol'
+    'check_running:health check if the RabbitMQ application is running'
+    'check_virtual_hosts:health check if all vhosts are running in the target node'
+    'cipher_suites:list cipher suites enabled by default'
+    "command_line_arguments:display target node's command-line arguments and flags"
+    'consume_event_stream:stream interval events from a running node'
+    'discover_peers:run a peer discovery and print the discovered nodes'
+    'environment:display name and value of each variable in the application environment'
+    'erlang_cookie_hash:output a hashed value of the shared secret used by the target node'
+    "erlang_version:report the target node's Erlang/OTP version"
+    'is_booting:report if RabbitMQ application is currently booting'
+    'is_running:report if RabbitMQ application is fully booted and running'
+    'list_bindings:list all bindings on a vhost'
+    'list_channels:list all channels in the nod'
+    'list_ciphers:list cipher suites supported by encoding commands'
+    'list_connections:list AMQP connections for the node'
+    'list_consumers:list all consumers for a vhost'
+    'list_exchanges:list exchanges'
+    'list_hashes:list hash functions supported by encoding commands'
+    'list_queues:list queues and their properties'
+    'list_unresponsive_queues:test queues to respond within timeout and list unresponded nodes'
+    'listeners:list active connection listeners'
+    'log_tail:prints the last N lines of the log on the node'
+    'log_tail_stream:stream log from a running node for a period of time'
+    'maybe_stuck:detect Erlang processes potentially not making progress'
+    'memory_breakdown:provide a memory usage breakdown on the target node'
+    'observer:start a CLI observer interface on the target node'
+    'ping:check that the node OS process is up'
+    'report:generate a server status report'
+    'runtime_thread_stats:provide a breakdown of runtime thread activity stats'
+    'schema_info:list schema database tables and their properties'
+    'server_version:display server version on the target node'
+    'tls_versions:list TLS versions supported'
+    # parameters
+    'list_global_parameters:list global runtime parameters'
+    'list_parameters:list runtime parameters for a virtual host'
+    # policies
+    'list_operator_policies:list operator policy overrides for a virtual host'
+    'list_policies:list all policies in a virtual host'
+    # virtual hosts
+    'list_vhost_limits:display configured virtual host limits'
+    # node configuration
+    'log_location:show log file locations on target node'
+    # feature flags
+    'list_feature_flags:list feature flags'
+    # queues
+    'quorum_status:display quorum status of a quorum queue'
+    'check_if_cluster_has_classic_queue_mirroring_policy:health check if there are policies that enable classic queue mirroring'
+    'check_if_node_is_quorum_critical:health check if there are queues/streams with minimum online quorum'
+  )
+
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq_plugins() {
+  local ret=1
+
+  _arguments -C \
+    $rabbitmq_common_options[@] \
+    '1: :_rabbitmq_plugins_commands' \
+    '*:: :->arg' \
+    && ret=0
+
+  case $state in
+    (arg)
+      case $words[1] in
+        (list)
+          _arguments -s \
+            '-E[show only explicitly enabled plugins]' \
+            '-e[show only explicitly or implicitly enabled plugins]' \
+            '-m[show only plugin names]' \
+            '-v[show all plugin details]' \
+            && ret=0
+          ;;
+        (*)
+          _arguments \
+            "--offline[modify node's enabled plugin state without contacting the node]" \
+            '--online[treat a failure to connect to the running broker as fatal]' \
+            && ret=0
+          ;;
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+_rabbitmq_plugins_commands() {
+  local -a commands=(
+    'list:list all plugins'
+    'enable:enable the specified plugins and all their dependencies'
+    'disable:disable the specified plugins and all their dependencies'
+    'set:same as enable except ignore and overwrite any existing enabled plugins'
+  )
+
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq_queues() {
+  local ret=1
+
+  _arguments -C \
+    $rabbitmq_common_options[@] \
+    '1: :_rabbitmq_queues_commands' \
+    '*:: :->arg' \
+    && ret=0
+
+  case $state in
+    (arg)
+      case $words[1] in
+        (grow)
+          _arguments \
+            '--vhost-pattern[vhost pattern]:pattern' \
+            '--queue-pattern[queue pattern]:pattern' \
+            '--errors-only[only error]' \
+            '1:selector:(all even)' \
+            && ret=0
+          ;;
+        (rebalance)
+          _arguments \
+            '--vhost-pattern[vhost pattern]:pattern' \
+            '--queue-pattern[queue pattern]:pattern' \
+            '1:type:(all quorum classic stream)' \
+            && ret=0
+          ;;
+        (add_member|delete_member|quorum_status|peek)
+          _arguments \
+            '--vhost[vhost name]:name' \
+            && ret=0
+          ;;
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+_rabbitmq_queues_commands() {
+  local -a commands=(
+    'help:display general and commands'
+    # cluster
+    'grow:add a new replica on the given node'
+    'rebalance:rebalance queue leader replicas across cluster nodes'
+    'shrink:shrink quorum queue clusters by removing any members on the given node'
+    # replication
+    'add_member:add a quorum queue member on the given node'
+    'delete_member:remove a quorum member on the given node'
+    # queues
+    'quorum_status:display quorum status of a quorum queue'
+    'peek:display the details of message at the given position in the queue'
+    'check_if_cluster_has_classic_queue_mirroring_policy:health check if cluster has classic queue monitoring policy '
+    'check_if_node_is_quorum_critical:health check if there are queues with minimum online quorum'
+  )
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq_streams() {
+  local ret=1
+
+  _arguments -C \
+    $rabbitmq_common_options[@] \
+    '1: :_rabbitmq_streams_commands' \
+    '*:: :->arg' \
+    && ret=0
+
+  case $state in
+    (arg)
+      case $words[1] in
+        (add_replica|delete_replica|stream_status|delete_super_stream)
+          _arguments \
+            '--vhost[vhost name]:name' \
+            && ret=0
+          ;;
+        (restart_stream)
+          _arguments \
+            '--vhost[vhost name]:name' \
+            '--preferred-leader-node[preferred leader node]:node' \
+            && ret=0
+          ;;
+        (active_stream_consumer)
+          _arguments \
+            '--stream[stream name]:stream' \
+            '--reference[reference]:reference' \
+            '--vhost[vhost name]:name' \
+            && ret=0
+          ;;
+        (list_stream_connections)
+          _arguments \
+            '*:item:_rabbitmq_streams_stream_connections_items' \
+            && ret=0
+          ;;
+        (list_stream_consumers)
+          _arguments \
+            '-p[vhost name]:vhost' \
+            '*:item:_rabbitmq_streams_stream_consumers_items' \
+            && ret=0
+          ;;
+        (list_stream_publishers)
+          _arguments \
+            '-p[vhost name]:vhost' \
+            '*:item:_rabbitmq_streams_stream_publishers_items' \
+            && ret=0
+          ;;
+        (add_super_stream)
+          _arguments \
+            '--vhost[vhost name]:name' \
+            '--partitions[number of partitions the super stream will have]:number' \
+            '--binding-keys[comma separated list of binding keys]:keys' \
+            '--max-length-bytes[maximum size of partition streams]:bytes' \
+            '--max-age[maximum age of partition stream segments]:age' \
+            '--stream-max-segment-size-bytes[maximum size of partition stream segments]:bytes' \
+            '--leader-locator[leader locator strategy for partition streams]:strategy:(client-local balanced)' \
+            '--initial-cluster-size[initial cluster size of partition streams]:bytes' \
+            && ret=0
+          ;;
+        (list_stream_consumer_groups)
+          _arguments \
+            '-p[vhost name]:vhost' \
+            '*:item:_rabbitmq_streams_stream_consumer_groups_items' \
+            && ret=0
+          ;;
+        (list_stream_group_consumers)
+          _arguments \
+            '--stream[stream the consumers are attached to]:stream' \
+            '--reference[group reference]:reference' \
+            '--vhost[vhost name]:name' \
+            '*:item:_rabbitmq_streams_stream_group_consumers_items' \
+            && ret=0
+          ;;
+        (list_stream_tracking)
+          _arguments \
+            '--all[list offset tracking and writer duplication information]' \
+            '--offset[list only offset tracking information]' \
+            '--writer[list only writer duplication tracking information]' \
+            '--vhost[vhost name]:name' \
+            && ret=0
+          ;;
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+_rabbitmq_streams_commands() {
+  local -a commands=(
+    'help:display general and commands'
+    # replication
+    'add_replica:add a stream replica on the given node'
+    'delete_replica:remove a stream replica on the given node'
+    # monitoring
+    'stream_status:display the status of a stream'
+    "restart_stream:restart a stream including all of it's replica"
+    # stream plugin
+    'active_stream_consumer:trigger a rebalancing to activate a consumer'
+    'list_stream_connections:return stream protocol connection statistics'
+    'list_stream_consumers:return consumers attached to a stream'
+    'list_stream_publishers:return registered publishers'
+    'add_super_stream:create a super stream'
+    'delete_super_stream:delete a super stream'
+    'list_stream_consumer_groups:list groups of stream single active consumers for a vhost'
+    'list_stream_group_consumers:list consumers of a stream consumer group in a vhost'
+    'list_stream_tracking:list tracking information for a stream'
+  )
+
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq_streams_stream_connections_items() {
+  local -a items=(
+    'auth_mechanism[SASL authentication mechanism used]'
+    'client_properties[Informational properties transmitted by the client during connection establishment]'
+    'conn_name[Readable name for the connection]'
+    'connected_at[Date and time this connection was established, as timestamp]'
+    'connection_state[Connection state]'
+    'frame_max[Maximum frame size(bytes)]'
+    'heartbeat[Negotiated heartbeat interval, in seconds]'
+    'host[Server hostname obtained via reverse DNS, or its IP address]'
+    "peer_cert_issuer[The issuer of the peer's SSL certificate, in RFC4514 form]"
+    "peer_cert_validity[The period for which the peer's SSL certificate is valid]"
+    'peer_host[Peer hostname obtained via reverse DNS, or its IP address]'
+    'peer_port[Peer port]'
+    'port[Server port]'
+    'ssl[Boolean indicating whether the connection is secured with SSL]'
+    'ssl_cipher[SSL cipher algorithm]'
+    'ssl_hash[SSL hash function]'
+    'ssl_key_exchange[SSL key exchange algorithm]'
+    'ssl_protocol[SSL protocol]'
+    'subscriptions[Number of subscriptions (consumers) on the connection]'
+    'user[Username associated with the connection]'
+    'vhost[Virtual host name with non-ASCII characters escaped as in C]'
+  )
+
+  _values items $items
+}
+
+_rabbitmq_streams_stream_consumers_items() {
+  local -a items=(
+    'active[Boolean indicating whether the consumer is active or not]'
+    'activity_status[Consumer activity status]'
+    'connection_pid[Id of the Erlang process associated with the consumer connection]'
+    'credits[Available credits for the consumer]'
+    'messages_consumed[Number of messages the consumer consumed]'
+    'offset[The offset (location in the stream) the consumer is at]'
+    'offset_lag[The difference between the last stored offset and the last dispatched offset for the consumer]'
+    'properties[The properties of the consumer subscription]'
+    'stream[The stream the consumer is attached to]'
+    'subscription_id[The connection-scoped ID of the consumer]'
+  )
+
+  _values items $items
+}
+
+_rabbitmq_streams_stream_publishers_items() {
+  local -a items=(
+    'connection_pid[Id of the Erlang process associated with the consumer connection]'
+    'messages_confirmed[The number of confirmed messages for the publisher]'
+    'messages_errored[The number of errored messages for the publisher]'
+    'messages_published[The overall number of messages the publisher published]'
+    'publisher_id[The connection-scoped ID of the publisher]'
+    'reference[The deduplication reference of the publisher]'
+    'stream[The stream the publisher publishes to]'
+  )
+
+  _values items $items
+}
+
+_rabbitmq_streams_stream_consumer_groups_items() {
+  local -a items=(
+    'consumers[Number of consumers in the group]'
+    'partition_index[The stream partition index if the stream is part of a super stream]'
+    'reference[The group reference (name)]'
+    'stream[The stream the consumers are attached to]'
+  )
+
+  _values items $items
+}
+
+_rabbitmq_streams_stream_group_consumers_items() {
+  local -a items=(
+    'connection_name[Readable name of the consumer connection]'
+    'state[Consumer state]'
+    'subscription_id[The connection-scoped ID of the consumer]'
+  )
+
+  _values items $items
+}
+
+_rabbitmq_upgrade_commands() {
+  local -a commands=(
+    'help:display general and commands'
+    'post_upgrade:runs post-upgrade tasks'
+    'await_online_quorum_plus_one:waits for all quorum queues to have an above minimum online quorum'
+    'drain:put the node in maintenance mode'
+    'revive:put the node out of maintenance and into regular operating mode'
+  )
+
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq_rabbitmqadmin() {
+  local ret=1
+
+
+
+  _arguments -C \
+    '(-c --config)'{-c,--config}'[config file path]:path:_files' \
+    '(-N --node)'{-N,--node}'[node alias]:alias' \
+    '(-H --host)'{-H,--host}'[HTTP API hostname to use when connecting]:host' \
+    '(-P --port)'{-P,--port}'[HTTP API port to use when connecting]:port' \
+    '(-U --base-uri)'{-U,--base-uri}'[base HTTP API endpoint URI]:base_uri' \
+    '--path-prefix[use if target node uses a path prefix(Default: "/api")]:prefix' \
+    '(-V --vhost)'{-V,--vhost}'[target virtual host(Default: "/")]:vhost' \
+    '(-u --username)'{-u,--username}'[user for HTTP API access]:user' \
+    '(-p --password)'{-p,--password}'[password for HTTP API access]:password'  \
+    '(-k --insecure)'{-k,--insecure}'[disable TLS peer verification]' \
+    '--use-tls[use TLS for HTTP API requests]' \
+    '--tls-ca-cert-file[local path to a CA certificate file in PEM format]:path:_files' \
+    '--tls-cert-file[local path to a client certificate file in PEM format]:path:_files' \
+    '--tls-key-file[local path to a client private key file in PEM format]:path:_files' \
+    '--timeout[HTTP API request timeout in seconds(Default: 60)]:seconds' \
+    '(-q --quiet)'{-q,--quiet}'[produce less output]' \
+    '--non-interactive[pass when invoking from scripts]' \
+    '--table-style[style preset to apply to output tables]:style:(modern borderless ascii dots psql markdown sharp)' \
+    '(- *)'{-h,--help}'[print help]' \
+    '1: :_rabbitmq_rabbitmqadmin_commands' \
+    '*:: :->arg' \
+    && ret=0
+
+  case $state in
+    (arg)
+      case $words[1] in
+      esac
+    ;;
+  esac
+
+  return ret
+}
+
+_rabbitmq_rabbitmqadmin_commands() {
+  local -a commands=(
+    "auth_attempts:Operations on authentication attempt statistics"
+    "bindings:Operations on bindings"
+    "channels:Operations on channels"
+    "close:Closes connections"
+    "connections:Operations on connections"
+    "declare:Creates or declares objects"
+    "definitions:Operations on definitions"
+    "delete:Deletes objects"
+    "deprecated_features:Operations on deprecated features"
+    "exchanges:Operations on exchanges"
+    "export:See 'definitions export'"
+    "feature_flags:Operations on feature flags"
+    "federation:Operations on federation upstreams and links"
+    "get:Fetches message(s) from a queue or stream via polling"
+    "global_parameters:Operations on global runtime parameters"
+    "health_check:Runs health checks"
+    "import:See 'definitions import'"
+    "list:Lists objects"
+    "nodes:Node operations"
+    "operator_policies:Operations on operator policies"
+    "parameters:Operations on runtime parameters"
+    "passwords:Operations on passwords"
+    "permissions:Operations on user permissions"
+    "plugins:List enabled plugins"
+    "policies:Operations on policies"
+    "publish:Publishes (inefficiently) message(s) to a queue or a stream"
+    "purge:Purges queues"
+    "queues:Operations on queues"
+    "rebalance:Rebalancing of leader replicas"
+    "show:Overview, memory footprint breakdown, and more"
+    "shovels:Operations on shovels"
+    "streams:Operations on streams"
+    "tanzu:Tanzu RabbitMQ-specific commands"
+    "users:Operations on users"
+    "user_limits:Operations on per-user (resource) limits"
+    "vhosts:Virtual host operations"
+    "vhost_limits:Operations on virtual host (resource) limits"
+    "help:Print this message or the help of the given subcommand(s)"
+  )
+
+  _describe -t commands 'command' commands "$@"
+}
+
+_rabbitmq "$@"
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
