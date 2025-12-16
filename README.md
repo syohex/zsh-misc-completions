@@ -8,6 +8,7 @@
 - [compiledb](https://github.com/nickdiego/compiledb)
 - [bear](https://github.com/rizsotto/Bear)
 - [cmigemo](https://github.com/koron/cmigemo)
+- [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
 
 ## Perl
 
