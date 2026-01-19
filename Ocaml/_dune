@@ -77,7 +77,10 @@ _dune_init() {
         (project)
           _arguments  \
             '(- *)'{-h,--help}'[Show command line help]' \
+            '--inline-tests[use inline tests]' \
             '--kind=[The kind of project to initialize]:kind:(executable library)' \
+            '--libs=[comma separated dependencies that the component depends on]:depends' \
+            '--ppx=[comma separated list of ppx preprocessors used by the component]:ppxs' \
             '1:name' \
             '*: :_files' && ret=0
           ;;
