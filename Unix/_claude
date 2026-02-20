@@ -73,8 +73,10 @@ _claude() {
     '--settings[Path to a settings JSON file or a JSON string to load additional settings from]:file_or_json:_files -g "*.json"' \
     '--strict-mcp-config[Only use MCP servers from --mcp-config]' \
     '--system-prompt[System prompt to use for the session]:prompt' \
+    '--tmux[Create a tmux session for the worktree. Use iTerm2 native panes when available]' \
     '--tools[Specify the list of available tools from the built-in set]:tools' \
     '--verbose[Override verbose mode setting from config]' \
+    '(-w --worktree)'{-w,--worktree}'[Create a new git worktree for this session]::name' \
     '(- *)'{-v,--version}'[Output the version number]' \
     '1: :_claude_commands' \
     '*:: :->subcmd' && ret=0
