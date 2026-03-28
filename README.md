@@ -14,8 +14,6 @@
 
 - [carmel](https://github.com/miyagawa/Carmel)
 - [carton](https://github.com/perl-carton/carton)
-- [cpanm](https://github.com/miyagawa/cpanminus)
-- [cpm](https://github.com/skaji/cpm)
 - [milla](https://github.com/miyagawa/Dist-Milla)
 - [minil](https://github.com/tokuhirom/Minilla)
 - [perl-build](https://github.com/tokuhirom/Perl-Build)
