@@ -35,6 +35,8 @@ _dotnet() {
   typeset -A opt_args
   local ret=1
 
+  local dotnet_outdated="${commands[dotnet-outdated]}"
+
   _arguments -C \
     '(- : *)'{-h,--help}'[Show command line help]' \
     '(- : *)--version[Display .NET SDK version in use]' \
@@ -178,6 +180,37 @@ _dotnet() {
         (fsi)
           _files -g "*.fsx"
           ;;
+        (outdated)
+          if [[ -z $dotnet_outdated ]]; then
+             return ret
+          fi
+
+          _arguments \
+            '(- *)'{-h,--help}'[Show help information]' \
+            '(- *)--version[Show version information]' \
+            '(-i --include-auto-references)'{-i,--include-auto-references}'[Specify whether to include auto-referenced package]' \
+            '(-pre --pre-release)'{-pre,--pre-release}'[Specify whether to look for pre-release versions of packages]:pre:(Auto Always Never)' \
+            '(-vl --version-lock)'{-vl,--version-lock}'[Specify whether to the package should be locked to Major or Minor version]:lock:(None Major Minor)' \
+            '(-t --transitive)'{-t,--transitive}'[Specify whether it should detect transitive dependencies]' \
+            '(-t --transitive-depth)'{-td,--transitive-depth}'[Define how many levels deep transitive dependencies should be analyzed]:depth' \
+            '(-u --upgrade)'{-u,--upgrade}'[Specify whether outdated packages should be upgraded]:type:(Auto Prompt)' \
+          '(-f --fail-on-updates)'{-f,--fail-on-updates}'[Specify whether it should return non-zero exit code when updates are found]' \
+          \*{-inc,--include}'[Specify to only look at packages where the name contains the provided string]:filter' \
+          \*{-exc,--exclude}'[Specify to only look at packages where the name does not contain the provided string]:filter' \
+          '(-o --output)'{-o,--output}'[File name for a generated report]:file:_files' \
+          '(-of --output-format)'{-of,--output-format}'[Output format for the generated report]:format:(json csv markdown)' \
+          '(-ot --older-than)'{-ot,--older-than}'[Only include package versions that are older than given number of days]:days' \
+          '(-n --no-restore)'{-n,--no-restore}'[Add the reference without performing restore preview and compatibility check]' \
+          '(-r --recursive)'{-r,--recursive}'[Recursively search for all projects within the provided directory]' \
+          '(-ifs --ignore-failed-sources)'{-ifs,--ignore-failed-sources}'[Treat package source failures as warnings]' \
+          '(-utd --include-up-to-date)'{-utd,--include-up-to-date}'[Include all dependencies in the report even the ones not outdated]' \
+          '(-prl --pre-release-label)'{-prtl,--pre-release-label}'[Specify an optional label to restrict matches when looking for pre-release versions of packages]:label' \
+          '(-ncll --nuget-cred-log-level)'{-ncll,--nuget-cred-log-level}'[Specify level of logs for NuGet Credential Service]:level:(Debug Verbose Information Minimal Warning Error)' \
+          '(-rt --runtime)'{-rt,--runtime}'[Specify an optional runtime identifier to be used during the restore target]:runtime' \
+          '(-mt --maximum-version)'{-mt,--maximum-version}'[Inclusive maximum package version to upgrade to]:version' \
+          '(-it --idle-timeout)'{-it,--idle-timeout}'[Specify the idle timeout in seconds]:seconds' \
+          '1:sub_or_file: _alternative "cmds\:cmd\:(mcp)" "projs\:proj\:_dotnet_project_files"' \
+          && ret=0
       esac
     ;;
   esac
@@ -219,6 +252,9 @@ _dotnet_commands() {
     "user-secrets:Manage development user secrets"
     "watch:Start a file watcher that runs a command when files change"
   )
+  if [[ -n $dotnet_outdated ]]; then
+    commands+=('outdated:List outdated Nuget packages')
+  fi
 
   _describe -t 'commands' "commands" commands
 }
