@@ -26,7 +26,7 @@
 # Description
 # -----------
 #
-#  Completion script for claude code 2.1.15 (https://github.com/anthropics/claude-code)
+#  Completion script for claude code 2.1.119 (https://github.com/anthropics/claude-code)
 #
 # ------------------------------------------------------------------------------
 
@@ -91,6 +91,18 @@ _claude() {
             '1:target:(stable latest)' \
             && ret=0
           ;;
+        (agents)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for command]' \
+            '--setting-sources[Comma-separated list of setting sources to load]:source:_claude_setting_sources' \
+            && ret=0
+          ;;
+        (auth)
+          _claude_auth && ret=0
+          ;;
+        (auto-mode)
+          _claude_auto-mode && ret=0
+          ;;
         (mcp)
           _claude_mcp && ret=0
           ;;
@@ -112,6 +124,9 @@ _claude() {
 (( $+functions[_claude_commands] )) ||
 _claude_commands() {
   local -a commands=(
+    "agents:Manage background and configured agents"
+    "auth:Manage authentication"
+    "auto-mode:Inspect auto mode classifier configuration"
     "doctor:Check the health of your Claude Code auto-updater"
     "install:Install Claude Code native build"
     "mcp:Configure and manage MCP servers"
@@ -121,6 +136,102 @@ _claude_commands() {
   )
 
   _describe -t 'commands' "commands" commands
+}
+
+(( $+functions[_claude_auth] )) ||
+_claude_auth() {
+  local ret=1
+
+  local -a commands=(
+    'help:display help for command'
+    'login:Sign in to your Authropic account'
+    'logout:Log out from your Anthropic account'
+    'status:Show authentication status'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (help)
+          local -a help_commands=(login logout status)
+          _arguments \
+            '1:command:(($help_commands))' \
+            && ret=0
+          ;;
+        (login)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for this command]' \
+            '--claudeai[Use Claude subscription(default)]' \
+            '--console[Use Anthropic Console instead of Claude subscription]' \
+            '--email[Pre-populate email address on the login page]:email' \
+            '--sso[Force SSO login flow]' \
+            && ret=0
+          ;;
+        (status)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for this command]' \
+            '--json[Output as JSON(default)]' \
+            '--text[Output as human-readable text ]' \
+            && ret=0
+          ;;
+        (*)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for command]' \
+            && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_claude_auto-mode] )) ||
+_claude_auto-mode() {
+  local ret=1
+
+  local -a commands=(
+    'help:Display help for command'
+    'config:Print the effective auto mode config as JSON'
+    'critique:Get AI feedback on your custom auto mode rules'
+    'defaults:Print the default auto mode environment'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (help)
+          local -a help_commands=(config critique defaults)
+          _arguments \
+            '1:command:(($help_commands))' \
+            && ret=0
+          ;;
+        (critique)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for this command]' \
+            '--model[Override which model is used]:model' \
+            && ret=0
+          ;;
+        (*)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for command]' \
+            && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
 }
 
 (( $+functions[_claude_mcp] )) ||
@@ -293,7 +404,7 @@ _claude_plugin_marketplace() {
 (( $+functions[_claude_setting_sources] )) ||
 _claude_setting_sources() {
   local -a sources=(user project local)
-  _values -S ',' sources sources
+  _values -s ',' sources $sources
 }
 
 (( $+functions[_claude_mcp_names] )) ||
