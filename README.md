@@ -4,7 +4,6 @@
 
 - [gtags](https://www.gnu.org/software/global/)
 - [porg](https://github.com/miyagawa/cpanminus)
-- peco
 - [compiledb](https://github.com/nickdiego/compiledb)
 - [bear](https://github.com/rizsotto/Bear)
 - [cmigemo](https://github.com/koron/cmigemo)
@@ -23,6 +22,7 @@
 ## dotnet
 
 - [dotnet](https://github.com/dotnet/sdk)
+  - dotnet provides zsh completion feature but it is not useful for me
 - [fantomas](https://github.com/fsprojects/fantomas)
 - [dotnet-install.sh](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-install-script)
 
