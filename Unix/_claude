@@ -26,7 +26,7 @@
 # Description
 # -----------
 #
-#  Completion script for claude code 2.1.119 (https://github.com/anthropics/claude-code)
+#  Completion script for claude code 2.1.150 (https://github.com/anthropics/claude-code)
 #
 # ------------------------------------------------------------------------------
 
@@ -109,6 +109,17 @@ _claude() {
         (plugin)
           _claude_plugin && ret=0
           ;;
+        (project)
+          _claude_project && ret=0
+          ;;
+        (ultrareview)
+          _arguments \
+            '(- *)'{-h,--help}'[Display help for command]' \
+            '--json[Print the raw bugs.json payload instead of formatted findings]' \
+            '--timeout[Maximum minutes to wait for the review finish(default: 30)]:minutes' \
+            '*:: :_files' \
+            && ret=0
+          ;;
         (*)
           _arguments \
             '(- *)'{-h,--help}'[Display help for command]' \
@@ -131,7 +142,9 @@ _claude_commands() {
     "install:Install Claude Code native build"
     "mcp:Configure and manage MCP servers"
     "plugin:Manage Claude Code plugins"
+    "project:Manage Claude Code project state"
     "setup-token:Set up a long-lived authentication token"
+    "ultrareview:Run a cloud-hosted multi-agent code revie wof the current branch and print the findings"
     "update:Check for updates and install if available"
   )
 
@@ -390,6 +403,46 @@ _claude_plugin_marketplace() {
         (*)
           _arguments \
             '(- *)'{-h,--help}'[Display help for command]' \
+            '*:: :_files' \
+            && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+(( $+functions[_claude_project] )) ||
+_claude_project() {
+  local ret=1
+
+  local -a commands=(
+    'help:display help for command'
+    'purge:Delete all Claude Code state for a project'
+  )
+
+  _arguments -C \
+    '(- *)'{-h,--help}'[Show help and usage information]' \
+    '1: :(($commands))' \
+    '*:: :->subcmd' && ret=0
+
+  case $state in
+    (subcmd)
+      case $words[1] in
+        (help)
+          local -a help_commands=(help purge)
+          _arguments \
+            '1:command:(($help_commands))' \
+            && ret=0
+          ;;
+        (purge)
+          _arguments \
+            '--all[Purge state for every project]' \
+            '--dry-run[List what would be deleted without deleting anything]' \
+            '(- *)'{-h,--help}'[Display help for command]' \
+            '(-i --interactive)'{-i,--interactive}'[Prompt for each item before deleting]' \
+            '(-y --yes)'{-y,--yes}'[Skip confirmation prompt]' \
             '*:: :_files' \
             && ret=0
           ;;
