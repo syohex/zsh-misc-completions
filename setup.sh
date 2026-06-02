@@ -8,7 +8,7 @@ fi
 
 mkdir -p "$destination"
 
-local -a  files=(${(@f)"$(find Unix Perl dotnet Ocaml -name '_*' -type f)"})
+local -a files=(${(@f)"$(find Unix Perl dotnet Ocaml Ruby -name '_*' -type f)"})
 if [[ $OSTYPE == darwin* ]]; then
   files+=(macOS/_*)
 fi

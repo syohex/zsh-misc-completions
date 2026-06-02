@@ -26,6 +26,10 @@
 - [fantomas](https://github.com/fsprojects/fantomas)
 - [dotnet-install.sh](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-install-script)
 
+## Ruby
+
+- [ruby-build](https://github.com/rbenv/ruby-build)
+
 ## macOS
 
 - mediafilesegmenter
