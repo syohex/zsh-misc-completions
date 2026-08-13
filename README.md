@@ -8,6 +8,8 @@
 - [bear](https://github.com/rizsotto/Bear)
 - [cmigemo](https://github.com/koron/cmigemo)
 - [rabbitmq](https://github.com/rabbitmq/rabbitmq-server)
+- [android-cli](https://developer.android.com/tools/agents/android-cli/)
+- [claude](https://claude.com/product/claude-code)
 
 ## Perl
 
